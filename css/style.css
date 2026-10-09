@@ -1,0 +1,2068 @@
+/* =========================================================
+   FRMFRM
+   Global Stylesheet
+   ========================================================= */
+
+
+/* =========================================================
+   01. FONT
+   ========================================================= */
+
+
+/* Geist Sans
+   English / Numbers / Symbols
+   Regular 400
+*/
+@font-face {
+    font-family: "Geist";
+    src: url("../assets/fonts/Geist-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* Geist Medium for product specification labels */
+@font-face {
+    font-family: "Geist";
+    src: url("../assets/fonts/Geist-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* Combined Korean / Latin body typeface */
+@font-face {
+    font-family: "FRMFRM";
+    src: url("../assets/fonts/FRMFRM-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* FRMFRM MONO
+   Custom Brand Typeface
+*/
+@font-face {
+    font-family: "FRMFRM Mono";
+    src: url("../assets/fonts/FRMFRMMONO-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* =========================================================
+   02. VARIABLES
+   ========================================================= */
+
+:root {
+
+    /* ---------- COLOR ---------- */
+
+    --color-bg: #ffffff;
+    --color-text: #000000;
+    --color-image-bg: #eeeeee;
+
+
+    /* ---------- LAYOUT ---------- */
+
+    --page-padding: 40px;
+    --column-gap: 20px;
+    --grid-columns: repeat(12, minmax(0, 1fr));
+
+    /* Main content begins this far below header flow */
+    --content-top: 40px;
+
+
+    /* ---------- PRODUCT ---------- */
+
+    --product-image-size: 670px;
+    --product-image-gap: 20px;
+
+
+    /* ---------- TYPOGRAPHY ---------- */
+
+    --font-sans: "FRMFRM", "Geist", "Pretendard", Arial, sans-serif;
+    --font-en: var(--font-sans);
+    --font-ko: var(--font-sans);
+    --font-mono: "FRMFRM Mono", monospace;
+
+    --font-body-en: 14px;
+    --font-body-ko: 14px;
+
+    --body-line-height: 1.5;
+    --body-letter-spacing: -0.03em;
+
+
+    /* ---------- HEADER ---------- */
+
+    --header-height: 80px;
+}
+
+
+/* =========================================================
+   03. RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 400;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+}
+
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+h1,
+h2,
+h3,
+p,
+figure,
+dl,
+dd,
+ul {
+    margin: 0;
+}
+
+
+ul {
+    padding: 0;
+    list-style: none;
+}
+
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+
+/* =========================================================
+   04. TYPOGRAPHY
+   ========================================================= */
+
+
+/* ---------- ENGLISH BODY ---------- */
+
+.text-en {
+    font-family: var(--font-en);
+
+    font-size: var(--font-body-en);
+    font-weight: 400;
+
+    line-height: var(--body-line-height);
+    letter-spacing: var(--body-letter-spacing);
+}
+
+
+/* ---------- KOREAN BODY ---------- */
+
+.text-ko {
+    font-family: var(--font-ko);
+
+    font-size: var(--font-body-ko);
+    font-weight: 400;
+
+    line-height: var(--body-line-height);
+    letter-spacing: var(--body-letter-spacing);
+}
+
+
+/* =========================================================
+   05. CROSS MARK
+   ========================================================= */
+
+
+/*
+   Cross가 배치될 기준 요소.
+
+   기존 absolute positioning을 사용하는 요소도 있으므로
+   position 값이 없는 cross-target에만 relative가 적용됩니다.
+*/
+
+.cross-target {
+    position: relative;
+}
+
+
+/* ---------- CROSS ---------- */
+
+.corner-cross {
+    position: absolute;
+
+    width: 12px;
+    height: 12px;
+
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+
+/* Horizontal / Vertical line */
+
+.corner-cross::before,
+.corner-cross::after {
+    content: "";
+
+    position: absolute;
+
+    background-color: var(--color-text);
+}
+
+
+/* Horizontal */
+
+.corner-cross::before {
+    width: 100%;
+    height: 1px;
+
+    left: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+}
+
+
+/* Vertical */
+
+.corner-cross::after {
+    width: 1px;
+    height: 100%;
+
+    left: 50%;
+    top: 0;
+
+    transform: translateX(-50%);
+}
+
+
+/* ---------- TOP LEFT ---------- */
+
+.corner-cross--tl {
+    left: -8px;
+    top: -8px;
+
+    transform:
+        translate(-50%, -50%);
+}
+
+
+/* ---------- TOP RIGHT ---------- */
+
+.corner-cross--tr {
+    right: -8px;
+    top: -8px;
+
+    transform:
+        translate(50%, -50%);
+}
+
+
+/* ---------- BOTTOM LEFT ---------- */
+
+.corner-cross--bl {
+    left: -8px;
+    bottom: -8px;
+
+    transform:
+        translate(-50%, 50%);
+}
+
+
+/* ---------- BOTTOM RIGHT ---------- */
+
+.corner-cross--br {
+    right: -8px;
+    bottom: -8px;
+
+    transform:
+        translate(50%, 50%);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.site-header {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+
+    padding:
+        40px var(--page-padding) 0;
+}
+
+
+/* LOGO */
+
+.site-logo {
+    grid-column: 1 / 4;
+
+    justify-self: start;
+
+    display: block;
+    width: 110px;
+}
+
+
+.site-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
+/* NAVIGATION */
+
+.site-nav {
+    grid-column: 7 / 13;
+
+    justify-self: start;
+
+    display: flex;
+    align-items: center;
+
+    gap: 40px;
+
+    font-family: var(--font-en);
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 16px;
+    letter-spacing: -0.03em;
+}
+
+
+.site-nav a {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   06. HOME
+   ========================================================= */
+
+.page-home {
+    min-height: 100vh;
+}
+
+
+.home-main {
+    position: relative;
+
+    min-height: calc(100vh - var(--header-height));
+
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+
+    padding:
+        0 var(--page-padding);
+}
+
+
+/* ---------- HOME TITLE ---------- */
+
+.home-title {
+    grid-column: 1 / 7;
+    align-self: center;
+    min-width: 0;
+}
+
+
+.home-title h1 {
+    font-family: var(--font-en);
+
+    font-size: 48px;
+    font-weight: 400;
+
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+
+.home-title sup {
+    font-size: 12px;
+
+    vertical-align: top;
+}
+
+
+/* ---------- HOME 3D ---------- */
+
+.home-model {
+    position: relative;
+
+    grid-column: 7 / 13;
+
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    align-self: center;
+}
+
+
+.model-viewer {
+    width: 100%;
+    height: 100%;
+}
+
+
+.model-viewer canvas {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+}
+
+
+.model-instruction {
+    position: absolute;
+
+    left: 0;
+    bottom: -24px;
+
+    font-family: var(--font-en);
+
+    font-size: 10px;
+    font-weight: 400;
+
+    line-height: 14px;
+    letter-spacing: -0.03em;
+}
+
+
+/* =========================================================
+   07. FURNITURE INDEX
+   ========================================================= */
+
+.furniture-main {
+    padding:
+        var(--content-top) var(--page-padding) 120px;
+}
+
+
+/* ---------- PRODUCT GRID ---------- */
+
+.product-grid {
+    display: grid;
+
+    /* 전체 페이지와 동일한 12-column grid */
+    grid-template-columns:
+        var(--grid-columns);
+
+    column-gap: var(--column-gap);
+}
+
+
+/* ---------- PRODUCT CARD ---------- */
+
+.product-card {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+/* STOOL 01 — COLUMN 1–6 */
+
+.product-card:nth-child(1) {
+    grid-column: 1 / 7;
+}
+
+
+/* CHAIR 01 — COLUMN 7–12 */
+
+.product-card:nth-child(2) {
+    grid-column: 7 / 13;
+}
+
+
+.product-image-link {
+    display: block;
+}
+
+
+/* ---------- PRODUCT IMAGE ---------- */
+
+.product-image {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background: var(--color-image-bg);
+}
+
+
+.product-image img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* ---------- PRODUCT CARD INFO ---------- */
+
+.product-card-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.product-card-title {
+    width: fit-content;
+
+    font-family: var(--font-en);
+
+    font-size: 20px;
+    font-weight: 400;
+
+    line-height: 24px;
+    letter-spacing: -0.03em;
+}
+
+
+.product-card-dimensions {
+    font-family: var(--font-en);
+
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* =========================================================
+   08. PRODUCT DETAIL
+   STOOL 01 / CHAIR 01 공통
+   ========================================================= */
+
+.product-detail {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    column-gap: var(--column-gap);
+
+    padding:
+        var(--content-top) var(--page-padding) 120px;
+}
+
+
+/* =========================================================
+   08-1. PRODUCT IMAGE RAIL
+   ========================================================= */
+
+.product-gallery {
+    grid-column: 1 / 7;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: var(--product-image-gap);
+}
+
+
+.product-gallery-item {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background: var(--color-image-bg);
+}
+
+
+.product-gallery-item img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* =========================================================
+   08-2. PRODUCT INFO
+   ========================================================= */
+
+.product-info {
+    grid-column: 7 / 13;
+
+    position: relative;
+}
+
+
+/*
+   Left gallery scrolls.
+   Right product information remains visible.
+*/
+.product-info-sticky {
+    position: sticky;
+    top: 40px;
+
+    width: 100%;
+    max-width: none;
+
+    padding-left: 0;
+}
+
+
+/* ---------- PRODUCT SUMMARY ---------- */
+
+.product-summary {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+/* ---------- PRODUCT TITLE ---------- */
+
+.product-title {
+    font-family: var(--font-en);
+
+    font-size: 20px;
+    font-weight: 400;
+
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+}
+
+
+/* ---------- PRODUCT SPECS ---------- */
+
+.product-specs {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+.product-spec-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+/* Labels:
+   Dimensions
+   Materials
+*/
+.product-spec-group dt {
+    font-family: "Geist", var(--font-sans);
+
+    font-size: 14px;
+    font-weight: 500;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* Values:
+   400 × 400 × 430 mm
+   3030 Aluminum Profile
+   Birch Plywood
+*/
+.product-spec-group dd {
+    font-family: var(--font-en);
+
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* =========================================================
+   08-3. PRODUCT DESCRIPTION
+   ========================================================= */
+
+.product-description {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    width: 100%;
+    max-width: 100%;
+
+    margin-top: 80px;
+}
+
+
+/*
+   Generic fallback.
+   .text-ko / .text-en below provide exact typography.
+*/
+.product-description p {
+    font-weight: 400;
+}
+
+
+/* Korean / Latin mixed copy
+   FRMFRM Regular
+   14px
+   150%
+   -3%
+*/
+.product-description .text-ko {
+    font-family: var(--font-ko);
+
+    font-size: var(--font-body-ko);
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* English
+   FRMFRM Regular
+   14px
+   150%
+   -3%
+*/
+.product-description .text-en {
+    font-family: var(--font-en);
+
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* =========================================================
+   09. TYPEFACE
+   ========================================================= */
+
+.typeface-main {
+    padding-top: 120px;
+}
+
+
+/* ---------- HERO ---------- */
+
+.typeface-hero {
+    padding:
+        0 var(--page-padding);
+}
+
+
+.typeface-title h1 {
+    font-family: var(--font-mono);
+
+    font-size: 64px;
+    font-weight: 400;
+
+    line-height: 1;
+}
+
+
+.typeface-display {
+    margin-top: 120px;
+
+    font-family: var(--font-mono);
+
+    font-size: clamp(48px, 8vw, 120px);
+    font-weight: 400;
+
+    line-height: 1;
+}
+
+
+/* ---------- COMMON TYPEFACE SECTION ---------- */
+
+.typeface-info,
+.typeface-construction,
+.typeface-charset,
+.type-tester {
+    padding:
+        160px var(--page-padding);
+}
+
+
+.section-label {
+    margin-bottom: 40px;
+
+    font-family: var(--font-en);
+
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+/* ---------- TYPEFACE INFO ---------- */
+
+.typeface-info {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    gap: var(--column-gap);
+}
+
+
+.typeface-info-heading h2 {
+    font-family: var(--font-en);
+
+    font-size: 24px;
+    font-weight: 400;
+
+    line-height: 28px;
+    letter-spacing: -0.03em;
+}
+
+
+.typeface-info-text {
+    min-width: 0;
+}
+
+
+/* ---------- CONSTRUCTION ---------- */
+
+.typeface-construction-display {
+    font-family: var(--font-mono);
+
+    font-size: min(40vw, 500px);
+    font-weight: 400;
+
+    line-height: 0.8;
+}
+
+
+.typeface-specs {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    gap: var(--column-gap);
+
+    margin-top: 80px;
+}
+
+
+.typeface-specs div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+/* ---------- CHARACTER SET ---------- */
+
+.charset-display {
+    font-family: var(--font-mono);
+
+    font-size: clamp(28px, 5vw, 120px);
+    font-weight: 400;
+
+    line-height: 1.2;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------- TYPE TESTER ---------- */
+
+.type-tester-control {
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 40px;
+}
+
+
+.type-tester-input {
+    min-height: 240px;
+
+    outline: none;
+
+    font-family: var(--font-mono);
+
+    font-size: 120px;
+    font-weight: 400;
+
+    line-height: 1.2;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   10. ABOUT
+   ========================================================= */
+
+.about-main {
+    padding-top: 120px;
+}
+
+
+/* ---------- INTRO ---------- */
+
+.about-intro {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    gap: var(--column-gap);
+
+    padding:
+        0 var(--page-padding) 160px;
+}
+
+
+.about-title h1 {
+    font-family: var(--font-en);
+
+    font-size: 64px;
+    font-weight: 400;
+
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+
+.about-intro-text {
+    display: flex;
+    flex-direction: column;
+
+    gap: 24px;
+
+    min-width: 0;
+}
+
+
+/* ---------- STRUCTURAL LOGIC ---------- */
+
+.about-logic {
+    padding:
+        160px var(--page-padding);
+}
+
+
+.logic-grid {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    gap: var(--column-gap);
+}
+
+
+.logic-item {
+    min-height: 320px;
+
+    padding: 20px;
+
+    border: 1px solid var(--color-text);
+}
+
+
+.logic-number {
+    font-family: var(--font-en);
+
+    font-size: 14px;
+    font-weight: 400;
+
+    line-height: 1.5;
+    letter-spacing: -0.03em;
+}
+
+
+.logic-item h2 {
+    margin-top: 120px;
+
+    font-family: var(--font-en);
+
+    font-size: 24px;
+    font-weight: 400;
+
+    line-height: 28px;
+    letter-spacing: -0.03em;
+}
+
+
+/* ---------- MATERIALS ---------- */
+
+.about-materials {
+    padding:
+        160px var(--page-padding);
+}
+
+
+.materials-grid {
+    display: grid;
+
+    grid-template-columns:
+        var(--grid-columns);
+
+    gap: var(--column-gap);
+}
+
+
+.material-item {
+    min-height: 400px;
+
+    display: flex;
+    align-items: flex-end;
+
+    padding: 20px;
+
+    background: var(--color-image-bg);
+}
+
+
+.material-item h2 {
+    font-family: var(--font-en);
+
+    font-size: 24px;
+    font-weight: 400;
+
+    line-height: 28px;
+    letter-spacing: -0.03em;
+}
+
+
+/* =========================================================
+   11. FOOTER
+   12 COLUMN GRID
+   ========================================================= */
+
+.site-footer {
+    width: 100%;
+    height: 158px;
+
+    background-color: #F8F8F8;
+
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+
+    /*
+       Figma:
+       좌우 40px
+       상단 40px
+    */
+    padding:
+        40px var(--page-padding) 0;
+
+    align-items: start;
+}
+
+
+/* ---------- FOOTER LOGO ---------- */
+
+.footer-logo {
+    grid-column: 1 / 2;
+
+    font-family: var(--font-en);
+    font-size: 12px;
+    font-weight: 400;
+
+    line-height: 16px;
+    letter-spacing: -0.03em;
+
+    white-space: nowrap;
+}
+
+
+/* ---------- FOOTER NAV ---------- */
+
+.footer-nav {
+    grid-column: 2 / 3;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    font-family: var(--font-en);
+    font-size: 12px;
+    font-weight: 400;
+
+    line-height: 16px;
+    letter-spacing: -0.03em;
+}
+
+
+.footer-nav a {
+    white-space: nowrap;
+}
+
+
+/* ---------- COPYRIGHT ---------- */
+
+.footer-copyright {
+    grid-column: 12 / 13;
+
+    justify-self: end;
+
+    font-family: var(--font-en);
+    font-size: 12px;
+    font-weight: 400;
+
+    line-height: 16px;
+    letter-spacing: -0.03em;
+
+    white-space: nowrap;
+}
+
+
+/* All section content follows the shared twelve-column grid. */
+.about-title,
+.typeface-info-heading {
+    grid-column: 1 / 7;
+    min-width: 0;
+}
+
+.about-intro-text,
+.typeface-info-text {
+    grid-column: 7 / 13;
+}
+
+.logic-item,
+.material-item {
+    grid-column: span 6;
+    min-width: 0;
+}
+
+.typeface-specs > div {
+    grid-column: span 3;
+    min-width: 0;
+}
+
+.typeface-hero,
+.typeface-construction,
+.typeface-charset,
+.type-tester {
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+}
+
+.typeface-hero > *,
+.typeface-construction > *,
+.typeface-charset > *,
+.type-tester > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+/* Preserve the 40px margins and 20px gutters on smaller screens. */
+@media (max-width: 767px) {
+    .site-header {
+        padding-top: 20px;
+        row-gap: 24px;
+    }
+
+    .site-logo {
+        grid-column: 1 / -1;
+        width: 90px;
+    }
+
+    .site-nav {
+        grid-column: 1 / -1;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .home-main {
+        row-gap: 40px;
+        padding-top: var(--content-top);
+        padding-bottom: 40px;
+    }
+
+    .home-title,
+    .home-model {
+        grid-column: 1 / -1;
+    }
+
+    .home-title h1 {
+        font-size: clamp(32px, 8vw, 48px);
+    }
+
+    .product-grid,
+    .about-intro,
+    .typeface-info {
+        row-gap: 80px;
+    }
+
+    .product-card:nth-child(n),
+    .product-gallery,
+    .product-info,
+    .about-title,
+    .about-intro-text,
+    .typeface-info-heading,
+    .typeface-info-text,
+    .logic-item,
+    .material-item {
+        grid-column: 1 / -1;
+    }
+
+    .product-detail {
+        row-gap: 40px;
+    }
+
+    .product-gallery {
+        grid-row: 2;
+    }
+
+    .product-info {
+        grid-row: 1;
+    }
+
+    .product-info-sticky {
+        position: static;
+    }
+
+    .logic-grid,
+    .materials-grid {
+        row-gap: var(--column-gap);
+    }
+
+    .typeface-specs > div {
+        grid-column: span 6;
+    }
+
+    .about-title h1,
+    .typeface-title h1 {
+        font-size: clamp(32px, 8vw, 64px);
+        overflow-wrap: anywhere;
+    }
+
+    .type-tester-control {
+        flex-wrap: wrap;
+    }
+
+    .type-tester-control input {
+        max-width: 100%;
+    }
+
+    .site-footer {
+        height: auto;
+        row-gap: 32px;
+        padding: 40px var(--page-padding);
+    }
+
+    .footer-logo,
+    .footer-nav,
+    .footer-copyright {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+}
+
+/* =========================================================
+   14. EDITORIAL DESIGN
+   Shared grid: twelve columns / 40px margins / 20px gutters
+   ========================================================= */
+@font-face {
+    font-family: "Geist";
+    src: url("../assets/fonts/Geist-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --header-height: 72px;
+    --color-image-bg: #f2f2f2;
+    --rule: 1px solid #000;
+    --section-space: clamp(80px, 10vw, 160px);
+}
+
+body { line-height: 1.5; }
+::selection { background: #000; color: #fff; }
+a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 5px;
+}
+
+.site-header {
+    min-height: var(--header-height);
+    padding-top: 24px;
+    padding-bottom: 24px;
+    align-items: start;
+    border-bottom: var(--rule);
+}
+.site-logo { width: 100px; }
+.site-nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--column-gap);
+    width: 100%;
+    font-size: 13px;
+    line-height: 16px;
+}
+.site-nav a { width: fit-content; position: relative; }
+.site-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+}
+.site-nav a:hover::after,
+.site-nav a[aria-current="page"]::after { transform: scaleX(1); }
+
+.home-main { min-height: calc(100svh - var(--header-height)); }
+.home-title h1 {
+    font-family: var(--font-en);
+    font-weight: 400;
+    font-size: 48px;
+    line-height: 1;
+    letter-spacing: -.03em;
+}
+.home-model { min-width: 0; }
+
+.furniture-main { padding-top: 64px; padding-bottom: var(--section-space); }
+.product-card { gap: 12px; }
+.product-card-info {
+    padding: 10px 0;
+    border-bottom: var(--rule);
+}
+.product-card-title { font-size: 14px; line-height: 20px; }
+
+.product-detail { padding-top: 40px; padding-bottom: var(--section-space); }
+.product-title {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -.03em;
+    padding-bottom: 32px;
+}
+.product-summary { gap: 0; }
+.product-specs { gap: 0; }
+.product-spec-group {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: var(--column-gap);
+    padding: 14px 0;
+    border-bottom: var(--rule);
+    align-items: baseline;
+}
+.product-spec-group dt { grid-column: 1 / 3; }
+.product-spec-group dd { grid-column: 3 / 7; }
+.product-description { margin-top: 64px; gap: 28px; }
+.product-description p { max-width: 60ch; }
+.text-ko { word-break: keep-all; overflow-wrap: break-word; }
+.product-description .text-ko,
+.product-description .text-en { font-size: 14px; line-height: 1.5; }
+
+.about-main, .typeface-main { padding-top: 0; }
+.about-intro { padding-top: var(--section-space); padding-bottom: var(--section-space); }
+.about-title h1 {
+    font-family: "Geist", var(--font-sans);
+    font-weight: 600;
+    font-size: clamp(48px, 7.6vw, 160px);
+    line-height: .92;
+    letter-spacing: -0.03em;
+}
+.about-intro-text { gap: 28px; }
+.about-intro-text p { max-width: 60ch; }
+.about-logic, .about-materials,
+.typeface-info, .typeface-construction,
+.typeface-charset, .type-tester {
+    padding-top: 0;
+    padding-bottom: var(--section-space);
+}
+.section-label {
+    font-size: 13px;
+    line-height: 20px;
+    padding: 10px 0;
+    border-bottom: var(--rule);
+    margin-bottom: 40px;
+}
+.logic-grid, .materials-grid { row-gap: 40px; }
+.logic-item {
+    min-height: 260px;
+    padding: 12px 0 24px;
+    border: 0;
+    border-bottom: var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.logic-number { font-size: 13px; }
+.logic-item h2 {
+    margin-top: 80px;
+    font-size: clamp(24px, 3vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 16ch;
+}
+.material-item {
+    min-height: 320px;
+    background: #f2f2f2;
+    padding: 24px;
+}
+.material-item h2 { font-size: clamp(24px, 2.6vw, 40px); line-height: 1.1; letter-spacing: -0.03em; }
+
+.typeface-hero { padding-top: var(--section-space); padding-bottom: var(--section-space); }
+.typeface-title h1 { font-size: clamp(40px, 8.4vw, 160px); line-height: 1; overflow-wrap: anywhere; }
+.typeface-info { padding-top: 32px; }
+.typeface-info-heading h2 { font-size: 14px; line-height: 21px; }
+.typeface-info-text p { max-width: 48ch; }
+.charset-display { font-size: clamp(28px, 5.5vw, 104px); line-height: 1.25; }
+.type-tester-control { font-size: 13px; }
+.type-tester-control input { accent-color: #000; cursor: pointer; }
+.type-tester-input { font-size: 96px; padding-bottom: 24px; border-bottom: var(--rule); }
+
+.site-footer {
+    height: auto;
+    min-height: 180px;
+    padding-top: 24px;
+    padding-bottom: 40px;
+    background: #fff;
+    border-top: var(--rule);
+}
+.footer-logo { grid-column: 1 / 3; }
+.footer-nav { grid-column: 7 / 10; gap: 6px; }
+.footer-copyright { grid-column: 10 / 13; }
+.footer-nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+@media (max-width: 1024px) and (min-width: 768px) {
+    .site-nav { font-size: 11px; }
+}
+@media (max-width: 767px) {
+    :root { --header-height: 112px; }
+    .site-header { row-gap: 24px; padding-bottom: 24px; }
+    .site-nav { display: flex; flex-wrap: wrap; font-size: 11px; gap: 12px 20px; }
+    .home-main { min-height: auto; padding-top: 80px; padding-bottom: 80px; }
+    .home-title h1 { font-size: clamp(32px, 8vw, 48px); }
+    .about-title h1 { font-size: clamp(40px, 13vw, 96px); }
+    .product-grid { row-gap: 64px; }
+    .product-description { margin-top: 40px; }
+    .product-spec-group dt { grid-column: 1 / 4; }
+    .product-spec-group dd { grid-column: 4 / 7; }
+    .about-intro, .typeface-info { row-gap: 48px; }
+    .logic-item { min-height: 220px; }
+    .logic-item h2 { font-size: 32px; }
+    .material-item { min-height: 260px; }
+    .typeface-title h1 { font-size: clamp(32px, 8.4vw, 64px); }
+    .footer-logo, .footer-nav, .footer-copyright { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-nav a::after { transition: none; }
+}
+
+
+/* Header logo: outlined at rest, filled on hover or keyboard focus. */
+.site-logo-mark {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    fill: transparent;
+    stroke: currentColor;
+    stroke-width: 0.75px;
+}
+.site-logo-mark path,
+.site-logo-mark polygon {
+    vector-effect: non-scaling-stroke;
+    transition: fill 180ms ease;
+}
+.site-logo:hover .site-logo-mark,
+.site-logo:focus-visible .site-logo-mark {
+    fill: currentColor;
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-logo-mark path,
+    .site-logo-mark polygon { transition: none; }
+}
+
+/* Typeface glyph explorer — original outlines and control points. */
+.page-typeface .typeface-hero { padding-top: 40px; padding-bottom: 32px; }
+.page-typeface .typeface-title h1 { font-size: 32px; }
+.page-typeface .typeface-info { padding-bottom: 48px; }
+.glyph-explorer {
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+    padding: 0 var(--page-padding) var(--section-space);
+    align-items: start;
+}
+.glyph-preview { grid-column: 1 / 7; position: sticky; top: 24px; }
+.glyph-picker { grid-column: 7 / 13; }
+.glyph-preview, .glyph-picker { min-width: 0; background: transparent; color: #000; }
+.glyph-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.glyph-modes button {
+    color: #777;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #000;
+    padding: 18px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    letter-spacing: -.03em;
+}
+.glyph-modes button + button { border-left: 1px solid #000; }
+.glyph-modes button[aria-pressed="true"] { color: #000; box-shadow: inset 0 -2px #000; }
+.glyph-stage { width: 100%; padding: 16px 0; }
+.glyph-stage svg { display: block; width: 100%; height: auto; max-height: 620px; }
+.glyph-guide { stroke: #aaa; stroke-width: 1; stroke-dasharray: 5 6; vector-effect: non-scaling-stroke; }
+.glyph-guide-label { fill: #777; font-family: var(--font-sans); font-size: 22px; letter-spacing: -.03em; }
+.glyph-solid { fill: #000; }
+.glyph-outline { fill: none; stroke: #000; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.glyph-anchor { fill: #fff; stroke: #000; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.glyph-handle { fill: #000; }
+.glyph-handle-line { stroke: #777; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.glyph-meta, .glyph-picker-heading { display: flex; justify-content: space-between; gap: 20px; padding: 16px; font-size: 12px; border-bottom: 1px solid #000; }
+.glyph-meta { border-top: 0; border-bottom: 1px solid #000; }
+.glyph-picker-heading h2 { font-size: inherit; font-weight: 400; }
+.glyph-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.glyph-cell {
+    min-width: 0;
+    aspect-ratio: 1;
+    font-family: var(--font-mono);
+    font-size: clamp(24px, 3vw, 48px);
+    font-weight: 400;
+    letter-spacing: -.03em;
+    line-height: 1;
+    color: #000;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+    cursor: pointer;
+}
+.glyph-cell:nth-child(6n) { border-right: 0; }
+.glyph-cell:hover { box-shadow: inset 0 0 0 1px #000; }
+.glyph-cell[aria-pressed="true"] { background: transparent; color: #000; box-shadow: inset 0 0 0 2px #000; }
+.glyph-status { font-size: 11px; color: #666; padding: 16px; min-height: 49px; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+    .glyph-explorer { row-gap: 20px; }
+    .glyph-preview, .glyph-picker { grid-column: 1 / -1; }
+    .glyph-preview { position: static; }
+    .glyph-stage svg { max-height: 400px; }
+    .glyph-cell { font-size: 28px; }
+    .glyph-modes button { padding: 14px 8px; }
+}
+
+/* Full-width typeface masthead, fitted to the twelve-column content width. */
+.page-typeface .typeface-title h1 {
+    font-size: clamp(24px, 12vw, 240px);
+    white-space: nowrap;
+    overflow-wrap: normal;
+    line-height: 1;
+}
+
+/* Mobile grid: four columns, 20px margins, 12px gutters. */
+@media (max-width: 767px) {
+    :root {
+        --page-padding: 20px;
+        --column-gap: 12px;
+        --grid-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .typeface-specs > div { grid-column: span 2; }
+
+    .product-spec-group {
+        grid-template-columns: var(--grid-columns);
+    }
+    .product-spec-group dt { grid-column: 1 / 3; }
+    .product-spec-group dd { grid-column: 3 / 5; }
+
+    .glyph-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .glyph-cell:nth-child(6n) { border-right: 1px solid #000; }
+    .glyph-cell:nth-child(4n) { border-right: 0; }
+}
+
+/* About brand title uses the original logo artwork. */
+.about-brand-logo {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
+/* About logo variations: a four-second cycle with one-second holds. */
+.about-logo-cycle {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 470 / 320;
+    max-height: 420px;
+}
+.about-logo-cycle .about-brand-logo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left center;
+    opacity: 0;
+    animation: about-logo-rotate 4s steps(1, end) infinite;
+}
+.about-logo-cycle .about-brand-logo:nth-child(2) { animation-delay: -3s; }
+.about-logo-cycle .about-brand-logo:nth-child(3) { animation-delay: -2s; }
+.about-logo-cycle .about-brand-logo:nth-child(4) { animation-delay: -1s; }
+@keyframes about-logo-rotate {
+    0% { opacity: 1; }
+    25%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .about-logo-cycle .about-brand-logo { animation: none; opacity: 0; }
+    .about-logo-cycle .about-brand-logo:first-child { opacity: 1; }
+}
+
+/* Preserve one scale for SVG units, so letters stay the same size. */
+.about-logo-cycle { max-height: none; }
+.about-logo-cycle .about-brand-logo {
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: auto;
+    object-fit: initial;
+}
+.about-logo-cycle .about-brand-logo:nth-child(n + 2) {
+    width: calc(100% * 230 / 470);
+}
+
+/* About introduction: centered rotating logo above the body copy. */
+.about-intro {
+    row-gap: 64px;
+}
+.about-intro .about-title {
+    grid-column: 5 / 9;
+}
+.about-intro .about-intro-text {
+    grid-column: 4 / 10;
+    grid-row: 2;
+}
+.about-intro-text p { max-width: none; }
+@media (max-width: 767px) {
+    .about-intro { row-gap: 40px; }
+    .about-intro .about-title,
+    .about-intro .about-intro-text { grid-column: 1 / -1; }
+}
+
+/* Minimal character picker: spacing replaces individual cell borders. */
+.glyph-grid { gap: 12px; padding: 20px 0; }
+.glyph-cell,
+.glyph-cell:nth-child(6n),
+.glyph-cell:nth-child(4n) {
+    border: 0;
+}
+.glyph-cell:hover { box-shadow: inset 0 -1px #aaa; }
+.glyph-cell[aria-pressed="true"] {
+    background: transparent;
+    box-shadow: inset 0 -1px #000;
+}
+.glyph-picker-heading { padding-left: 0; padding-right: 0; }
+.glyph-status { padding-left: 0; padding-right: 0; }
+
+.typeface-info-text { display: flex; flex-direction: column; gap: 28px; }
+
+/* Center the editable specimen within the type tester. */
+.type-tester-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    min-height: 320px;
+    padding: 40px 0;
+}
+@media (max-width: 767px) {
+    .type-tester-input { min-height: 240px; padding: 32px 0; }
+}
+
+.type-tester-input:focus,
+.type-tester-input:focus-visible {
+    outline: none;
+}
+
+/* Typeface masthead occupies the central ten desktop columns. */
+.page-typeface .typeface-hero > .typeface-title {
+    grid-column: 2 / 12;
+}
+@media (max-width: 767px) {
+    .page-typeface .typeface-hero > .typeface-title {
+        grid-column: 1 / -1;
+    }
+}
+
+/* One centered masthead doubles as the editable type tester. */
+.page-typeface .typeface-interactive-hero { padding-top: 64px; padding-bottom: 48px; row-gap: 24px; }
+.page-typeface .typeface-title h1.type-tester-input {
+    display: block;
+    min-height: 140px;
+    padding: 24px 0;
+    border: 0;
+    text-align: center;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+    cursor: text;
+}
+.page-typeface .typeface-hero > .typeface-title-controls {
+    grid-column: 4 / 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+}
+.typeface-title-controls > p { color: #777; }
+.typeface-title-controls .type-tester-control { margin: 0; gap: 12px; font-size: 12px; }
+@media (max-width: 767px) {
+    .page-typeface .typeface-hero > .typeface-title-controls { grid-column: 1 / -1; }
+    .page-typeface .typeface-title h1.type-tester-input { min-height: 120px; }
+}
+
+/* Start page content 40px below the header divider. */
+.furniture-main,
+.product-detail,
+.about-intro,
+.page-typeface .typeface-interactive-hero {
+    padding-top: 40px;
+}
+.product-card-info { padding-top: 0; }
+
+
+/* Full-bleed looping film immediately below the home navigation. */
+.home-video {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    background: var(--color-bg);
+}
+.home-video video {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Compact desktop navigation: 16px above and below. */
+@media (min-width: 768px) {
+    :root { --header-height: 56px; }
+    .site-header {
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+}
+
+/* Align desktop menu labels to the vertical center of the logo. */
+@media (min-width: 768px) {
+    .site-header { align-items: center; }
+}
+
+
+/* Home introduction: four columns of type beside an eight-column film. */
+.home-video-hero {
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+    align-items: center;
+    min-height: calc(100svh - var(--header-height));
+    padding: 40px var(--page-padding);
+}
+.home-video-hero .home-title { grid-column: 1 / 5; }
+.home-video-hero .home-video { grid-column: 5 / 13; min-width: 0; }
+@media (max-width: 767px) {
+    .home-video-hero { min-height: auto; row-gap: 40px; }
+    .home-video-hero .home-title,
+    .home-video-hero .home-video { grid-column: 1 / -1; }
+}
+
+
+/* Compact menu spacing and a profile mark at the outer right margin. */
+.site-header { position: relative; }
+.site-nav {
+    display: flex;
+    gap: 40px;
+    width: calc(100% - 60px);
+}
+.header-profile {
+    position: absolute;
+    right: var(--page-padding);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+}
+@media (max-width: 767px) {
+    .site-nav { width: 100%; gap: 16px; }
+    .header-profile { top: 24px; transform: none; }
+}
+
+.header-profile { animation: profile-clockwise 4s linear infinite; }
+@keyframes profile-clockwise {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+@media (max-width: 767px) {
+    .header-profile { animation-name: profile-clockwise-mobile; }
+}
+@keyframes profile-clockwise-mobile {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .header-profile { animation: none; }
+}
+
+/* Home film spans all twelve columns without a side title. */
+.home-video-hero { min-height: auto; }
+.home-video-hero .home-title { display: none; }
+.home-video-hero .home-video { grid-column: 1 / -1; }
+
+/* Center the home film within ten desktop columns. */
+@media (min-width: 768px) {
+    .home-video-hero .home-video { grid-column: 2 / 12; }
+}
+
+/* Profile navigation toggle: outline when open, filled when closed. */
+.header-profile {
+    animation: none;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border: 0;
+    background: transparent;
+    color: #000;
+    cursor: pointer;
+    margin-right: -10px;
+}
+.header-profile svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    animation: profile-toggle-spin 4s linear infinite;
+}
+.header-profile path { fill: none; stroke: currentColor; stroke-width: 1; }
+.header-profile[aria-expanded="false"] path { fill: currentColor; }
+.site-nav[hidden] { display: none; }
+@keyframes profile-toggle-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@media (max-width: 767px) {
+    .header-profile { top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .header-profile svg { animation: none; }
+}
+
+/* Mobile profile button behaves as a static, initially collapsed menu. */
+@media (max-width: 767px) {
+    .header-profile svg { animation: none; }
+    .site-header {
+        min-height: 72px;
+        row-gap: 0;
+    }
+    .site-nav:not([hidden]) {
+        margin-top: 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+}
+
+/* Mobile header border follows the visible content height. */
+@media (max-width: 767px) {
+    .site-header {
+        min-height: 0;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    .header-profile { top: 5px; }
+    .site-nav:not([hidden]) { margin-top: 24px; }
+}
+
+
+/* Each toggle click advances the profile clockwise by ninety degrees. */
+.header-profile svg {
+    animation: none;
+    transform: rotate(var(--profile-rotation, 0deg));
+    transition: transform 240ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .header-profile svg { transition: none; }
+}
+
+/* Keep desktop navigation visible while scrolling. */
+@media (min-width: 768px) {
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--color-bg);
+    }
+}
+
+
+/* Mobile navigation runs horizontally; home starts with it expanded. */
+@media (max-width: 767px) {
+    .site-nav:not([hidden]) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+    }
+}
+
+/* Spread mobile menu links across the full navigation width. */
+@media (max-width: 767px) {
+    .site-nav:not([hidden]) {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+}
+
+.site-footer { background-color: #ffffff; }
+
+.about-morph-svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+
+
+/* Bilingual explanations beneath each structural principle. */
+.logic-item { justify-content: flex-start; }
+.logic-description {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 24px;
+}
+
+/* Logic body copy spans five of each item's six desktop columns. */
+@media (min-width: 768px) {
+    .logic-description {
+        width: calc((100% - 5 * var(--column-gap)) / 6 * 5 + 4 * var(--column-gap));
+    }
+}
+
+
+/* Brand introduction beneath the home film. */
+.home-about {
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    column-gap: var(--column-gap);
+    padding: 80px var(--page-padding) var(--section-space);
+    align-items: start;
+}
+.home-about h2 {
+    grid-column: 1 / 6;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -.03em;
+}
+.home-about-copy {
+    grid-column: 7 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
+}
+@media (max-width: 767px) {
+    .home-about { padding-top: 40px; row-gap: 32px; }
+    .home-about h2,
+    .home-about-copy { grid-column: 1 / -1; }
+}
+
+/* Mobile section headings use Geist SemiBold; product names stay Regular. */
+@media (max-width: 767px) {
+    body:not(.page-about) .home-about h2,
+    body:not(.page-about) .typeface-info-heading h2,
+    body:not(.page-about) .section-label,
+    body:not(.page-about) .glyph-picker-heading h2 {
+        font-family: "Geist", var(--font-sans);
+        font-weight: 600;
+    }
+}
+
+/* Structural principle titles use the original body typeface. */
+.page-about .logic-item h2 {
+    font-family: var(--font-sans);
+    font-weight: 400;
+}
+
+/* Typeface description follows five grid columns rather than a character limit. */
+.typeface-info-text p { max-width: none; }
+@media (min-width: 768px) {
+    .typeface-info-text { grid-column: 7 / 12; }
+}
