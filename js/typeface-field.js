@@ -27,13 +27,6 @@ if (lab) {
         });
     });
 
-    const masthead = lab.querySelector('[data-study="masthead"]');
-    masthead.setAttribute('aria-pressed', 'false');
-    masthead.addEventListener('click', () => {
-        const inverted = masthead.classList.toggle('is-inverted');
-        masthead.setAttribute('aria-pressed', String(inverted));
-    });
-
     const construction = lab.querySelector('[data-study="construction"]');
     const alphabet = ['M', 'F', 'R', 'A', 'E', 'H'];
     let glyphIndex = 0;
@@ -101,7 +94,7 @@ if (lab) {
     const reelWindow = reels.querySelector('.lab-reel-window');
     const smallBoard = window.matchMedia('(max-width: 767px)');
     const reelAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!()+-.=?[]_{|} ';
-    const scenes = ['FRAME / STOOL', 'FRMFRM MONO', 'SPATIAL STUDY', 'FRMFRM MONO / LARGE LETTERS', 'STRUCTURAL RHYTHM'];
+    const scenes = ['FRAME / STOOL', 'FRMFRM MONO', 'SPATIAL STUDY', 'FRMFRM MONO / LARGE LETTERS', 'STRUCTURAL RHYTHM', 'FRAME / CHAIR', 'PROFILE SECTION', 'STOOL / ISOMETRIC FRAME'];
     let messageIndex = 0, boardCells = [], boardFrame = 0, boardVisible = false;
     let targets = [], columns = 48, rows = 22;
     const hoverTimers = new Map();
@@ -177,7 +170,7 @@ if (lab) {
         } else if (messageIndex === 3) {
             largeWord('FRMFRM', 1, 9);
             largeWord('MONO', 12, 9);
-        } else {
+        } else if (messageIndex === 4) {
             for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
                 const wave = Math.sin(x * .28) * 3.2 + Math.cos(x * .13) * 2;
                 const distance = Math.abs(y - 10 - wave);
@@ -186,6 +179,61 @@ if (lab) {
                 else if (distance < 4.4) put(x,y,'.');
             }
 
+        } else if (messageIndex === 5) {
+            const cx = Math.floor(columns / 2);
+            const width = smallBoard.matches ? 7 : 10;
+            const backLeft = cx - width, backRight = cx + width - 4;
+            line(backLeft, 2, backRight, 2, '=');
+            line(backLeft, 2, backLeft, 10, '|');
+            line(backRight, 2, backRight, 10, '|');
+            line(backLeft, 6, backRight, 6, '-');
+            const corners = [[backLeft,10], [backRight,10], [backRight+4,13], [backLeft+4,13]];
+            corners.forEach(([x,y],i) => {
+                const next = corners[(i + 1) % 4];
+                line(x,y,...next,'=');
+                line(x,y+1,x,y+7,'|');
+                put(x,y,'+'); put(x,y+7,'+');
+            });
+            line(backLeft+4,18,backRight+4,18,'-');
+            [[backLeft,2],[backRight,2]].forEach(([x,y]) => put(x,y,'+'));
+        } else if (messageIndex === 6) {
+            // Four identical quadrants form an orthogonal profile cross-section.
+            const cx = Math.floor(columns / 2), cy = 10;
+            for (let y = -8; y <= 8; y++) for (let x = -10; x <= 10; x++) {
+                const ax = Math.abs(x), ay = Math.abs(y);
+                let char = ' ';
+                if ((ay === 8 && ax >= 5) || (ay === 4 && ax >= 5) || (ay === 2 && ax <= 2)) char = '=';
+                if ((ax === 10 && ay >= 4) || (ax === 5 && ay >= 4) || (ax === 2 && ay <= 2)) char = '|';
+                if ((ax === 5 && ay === 4) || (ax === 10 && ay === 8) || (ax === 2 && ay === 2)) char = '+';
+                if (ax >= 3 && ax <= 5 && ay === ax - 1) char = '+';
+                if (char !== ' ') put(cx+x,cy+y,char);
+            }
+            put(cx,cy,'+');
+        } else if (messageIndex === 7) {
+            // Symmetric axonometric seat and cubic frame, centered on the board.
+            const cx = Math.floor(columns / 2);
+            const half = smallBoard.matches ? 10 : 13;
+            const top = [cx, 2], right = [cx + half, 6];
+            const front = [cx, 10], left = [cx - half, 6];
+            const drop = 10;
+            // Recessed rear rails stay light, so the visible frame reads first.
+            line(top[0], top[1] + 2, top[0], top[1] + drop, '.');
+            line(cx - half, 6 + drop, cx, 2 + drop, '.');
+            line(cx, 2 + drop, cx + half, 6 + drop, '.');
+            // A restrained surface texture distinguishes the seat from the open frame.
+            for (let y = 3; y < 10; y++) for (let x = cx - half + 1; x < cx + half; x++) {
+                if (Math.abs(x - cx) / half + Math.abs(y - 6) / 4 < .85) put(x, y, (x + y) % 3 === 0 ? '-' : '.');
+            }
+            [[top,right], [right,front], [front,left], [left,top]].forEach(([a,b]) => line(...a,...b,'='));
+            [[left,front], [front,right]].forEach(([a,b]) => {
+                line(a[0], a[1] + 1, b[0], b[1] + 1, '-');
+                line(a[0], a[1] + drop, b[0], b[1] + drop, '=');
+            });
+            [left, front, right].forEach(([x,y]) => {
+                line(x,y+1,x,y+drop,'|');
+                put(x,y,'+'); put(x,y+drop,'+');
+            });
+            put(...top,'+');
         }
         targets = grid.flat();
         reels.style.setProperty('--board-columns', columns);
@@ -279,17 +327,6 @@ if (lab) {
         echoLayers.forEach(layer => { layer.textContent = echoWords[echoIndex]; });
     });
 
-    const measure = lab.querySelector('[data-study="measure"]');
-    ['FRMFRM', 'IIIIII', 'MMMMMM'].forEach(word => {
-        const row = document.createElement('span'); row.className = 'lab-measure-row';
-        [...word].forEach(char => { const cell = document.createElement('span'); cell.textContent = char; row.append(cell); });
-        measure.querySelector('.lab-measure-lines').append(row);
-    });
-    measure.addEventListener('click', () => {
-        const hidden = measure.classList.toggle('is-clean');
-        measure.setAttribute('aria-pressed', String(!hidden));
-    });
-
     const svgNode = (tag, attributes) => {
         const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
         Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
@@ -369,36 +406,6 @@ if (lab) {
     });
     graphicPointer(space, renderSpace);
     renderSpace();
-
-    const immersive = lab.querySelector('[data-study="immersive"]');
-    const largeLetters = immersive.querySelectorAll('.lab-immersive-type i');
-    const largeWords = ['FORM', 'MONO', 'TYPE', 'FROM'];
-    let largeIndex = 0;
-    function revealLargeType() {
-        largeLetters.forEach((letter, index) => {
-            letter.getAnimations().forEach(animation => animation.cancel());
-            letter.textContent = largeWords[largeIndex][index];
-            if (!reducedMotion.matches) {
-                letter.animate([
-                    { opacity: 0, translate: `0 ${index % 2 ? '-45%' : '45%'}`, filter: 'blur(5px)' },
-                    { opacity: 1, translate: '0 0', filter: 'blur(0)' }
-                ], { duration: 700, delay: index * 70, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' });
-            }
-        });
-    }
-    immersive.addEventListener('click', () => {
-        largeIndex = (largeIndex + 1) % largeWords.length;
-        immersive.classList.toggle('is-dark', largeIndex % 2 === 1);
-        immersive.classList.toggle('is-outline', largeIndex === 2);
-        revealLargeType();
-    });
-    const largeObserver = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) {
-            revealLargeType();
-            largeObserver.disconnect();
-        }
-    }, { threshold: .35 });
-    largeObserver.observe(immersive);
 
     new ResizeObserver(() => {
         const rect = orbit.querySelector('.lab-orbit-stage').getBoundingClientRect();
