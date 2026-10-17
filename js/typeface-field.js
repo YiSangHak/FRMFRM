@@ -98,9 +98,17 @@ if (lab) {
     let messageIndex = 0, boardCells = [], boardFrame = 0, boardVisible = false;
     let targets = [], columns = 48, rows = 22;
     const hoverTimers = new Map();
+    const boardCache = new Map();
     function boardText() {
-        columns = smallBoard.matches ? 32 : 48;
+        columns = smallBoard.matches ? 24 : 48;
         rows = 22;
+        const cacheKey = `${columns}:${messageIndex}`;
+        const applyBoardMetadata = () => {
+            reels.style.setProperty('--board-columns', columns);
+            reels.style.setProperty('--board-rows', rows);
+            reels.setAttribute('aria-label', `${scenes[messageIndex]}. Split-flap character art. Activate for the next composition.`);
+        };
+        if (boardCache.has(cacheKey)) { targets = boardCache.get(cacheKey); applyBoardMetadata(); return; }
         const grid = Array.from({ length: rows }, () => Array(columns).fill(' '));
         const put = (x, y, char) => { if (x >= 0 && x < columns && y >= 0 && y < rows) grid[y][x] = char; };
         const text = (word, y, x = Math.floor((columns - word.length) / 2)) => [...word].forEach((char, i) => put(x + i, y, char));
@@ -155,8 +163,11 @@ if (lab) {
             [a,b,c,d].forEach(([x,y]) => { put(x,y,'+'); put(x,y+10,'+'); });
 
         } else if (messageIndex === 1) {
-            largeWord('FRMFRM', 4, 12);
-            text('FRMFRM MONO', 19);
+            if (smallBoard.matches) {
+                largeWord('FRM', 0, 9); largeWord('FRM', 10, 9); text('MONO', 21);
+            } else {
+                largeWord('FRMFRM', 4, 12); text('FRMFRM MONO', 19);
+            }
         } else if (messageIndex === 2) {
             const cx = (columns - 1) / 2, cy = 10.5;
             for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
@@ -168,8 +179,11 @@ if (lab) {
             }
 
         } else if (messageIndex === 3) {
-            largeWord('FRMFRM', 1, 9);
-            largeWord('MONO', 12, 9);
+            if (smallBoard.matches) {
+                largeWord('FRM', 0, 9); largeWord('FRM', 10, 9); text('MONO', 21);
+            } else {
+                largeWord('FRMFRM', 1, 9); largeWord('MONO', 12, 9);
+            }
         } else if (messageIndex === 4) {
             for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
                 const wave = Math.sin(x * .28) * 3.2 + Math.cos(x * .13) * 2;
@@ -236,9 +250,8 @@ if (lab) {
             put(...top,'+');
         }
         targets = grid.flat();
-        reels.style.setProperty('--board-columns', columns);
-        reels.style.setProperty('--board-rows', rows);
-        reels.setAttribute('aria-label', `${scenes[messageIndex]}. Split-flap character art. Activate for the next composition.`);
+        boardCache.set(cacheKey, targets);
+        applyBoardMetadata();
     }
     function settleBoard() {
         cancelAnimationFrame(boardFrame); boardFrame = 0;
@@ -265,25 +278,30 @@ if (lab) {
         if (reducedMotion.matches || !boardVisible || document.hidden) { settleBoard(); return; }
         const start = performance.now();
         let lastStep = -1;
+        const tickInterval = smallBoard.matches ? 95 : 65;
+        const finished = new Uint8Array(boardCells.length);
         boardCells.forEach(cell => cell.classList.remove('is-flipping'));
         const tick = now => {
             const elapsed = now - start;
-            const step = Math.floor(elapsed / 65);
+            const step = Math.floor(elapsed / tickInterval);
             let active = false;
             if (step !== lastStep) {
                 boardCells.forEach((cell, index) => {
+                    if (finished[index]) return;
                     const delay = index % columns * 14 + Math.floor(index / columns) * 32;
                     const duration = 430 + index % 7 * 65;
-                    if (targets[index] === ' ' && cell.firstChild.textContent === ' ') return;
+                    if (targets[index] === ' ' && cell.firstChild.textContent === ' ') { finished[index] = 1; return; }
                     const local = elapsed - delay;
                     if (local < 0) { active = true; return; }
                     if (local < duration) {
                         active = true;
                         cell.classList.add('is-flipping');
-                        cell.firstChild.textContent = reelAlphabet[(step * 7 + index * 11) % reelAlphabet.length];
+                        const char = reelAlphabet[(step * 7 + index * 11) % reelAlphabet.length];
+                        if (cell.firstChild.textContent !== char) cell.firstChild.textContent = char;
                     } else {
                         cell.classList.remove('is-flipping');
-                        cell.firstChild.textContent = targets[index];
+                        if (cell.firstChild.textContent !== targets[index]) cell.firstChild.textContent = targets[index];
+                        finished[index] = 1;
                     }
                 });
                 lastStep = step;
@@ -294,7 +312,7 @@ if (lab) {
         boardFrame = requestAnimationFrame(tick);
     }
     buildBoard();
-    document.fonts.load('100px \"FRMFRM Mono\"').then(() => { if ((messageIndex === 1 || messageIndex === 3) && !boardFrame) { boardText(); settleBoard(); } });
+    document.fonts.load('100px \"FRMFRM Mono\"').then(() => { boardCache.clear(); if ((messageIndex === 1 || messageIndex === 3) && !boardFrame) { boardText(); settleBoard(); } });
     reelWindow.addEventListener('pointermove', event => {
         if (boardFrame || reducedMotion.matches || event.pointerType === 'touch') return;
         const cell = event.target.closest('.lab-flap');
@@ -369,43 +387,132 @@ if (lab) {
     graphicPointer(projection, renderProjection);
     renderProjection();
 
-    const space = lab.querySelector('[data-study="space"]');
-    let expanded = false;
-    function renderSpace(x = 0, y = 0) {
-        const yaw = .65 + x * .55, pitch = -.4 + y * .35;
-        const scale = expanded ? 112 : 82;
-        const vertices = [];
-        for (const vz of [-1, 1]) for (const vy of [-1, 1]) for (const vx of [-1, 1]) {
-            const rx = vx * Math.cos(yaw) - vz * Math.sin(yaw);
-            const rz = vx * Math.sin(yaw) + vz * Math.cos(yaw);
-            const ry = vy * Math.cos(pitch) - rz * Math.sin(pitch);
-            vertices.push([300 + rx * scale, 200 + ry * scale, rz]);
-        }
-        const lines = document.createDocumentFragment();
-        const nodes = document.createDocumentFragment();
-        vertices.forEach(([vx, vy, depth], index) => {
-            [1, 2, 4].forEach(bit => {
-                const other = index ^ bit;
-                if (index >= other) return;
-                const [ox, oy] = vertices[other];
-                lines.append(svgNode('path', { d: `M${vx} ${vy}L${ox} ${oy}`, opacity: depth < 0 ? .35 : 1 }));
+    const comparison = lab.querySelector('[data-study="comparison"]');
+    const comparisonDrawing = comparison.querySelector('[data-comparison-drawing]');
+    let collapsed = false, collapseAmount = 0, comparisonFrame = 0;
+    let viewX = 0, viewY = 0, chairModel = null;
+    function renderComparison() {
+        const fragment = document.createDocumentFragment();
+        const scale = 1.9;
+        const faceDepth = 160;
+        const yaw = Math.PI / 4 + viewX * .16;
+        const tilt = .5 + viewY * .04;
+        const depthFactor = 1 - collapseAmount;
+        const project = (x,y,z) => [360 - collapseAmount * 60 + (x * Math.cos(yaw) - z * depthFactor * Math.sin(yaw)) * scale, 225 + ((x * Math.sin(yaw) + z * depthFactor * Math.cos(yaw)) * tilt - y) * scale];
+        const path = (points, attributes = {}) => {
+            const node = svgNode('path', { d: points.map((p,i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' '), fill:'none', ...attributes });
+            fragment.append(node); return node;
+        };
+        const label = (value,x,y,attributes = {}) => {
+            const node = svgNode('text',{x,y,'text-anchor':'middle',class:'lab-svg-label',...attributes});
+            node.textContent=value; fragment.append(node);
+        };
+        const face = z => [[0,0,z],[70,0,z],[70,100,z],[0,100,z],[0,0,z]];
+        // The F is on the foreground face; the chair recedes behind it.
+        path(face(0).map(p=>project(...p)),{fill:'#f2f2f2','fill-opacity':.45,stroke:'#aaa','stroke-width':.8});
+        const corners=[[0,0],[70,0],[70,100],[0,100]];
+        corners.forEach(([x,y])=>path([project(x,y,0),project(x,y,faceDepth)],{stroke:'#aaa','stroke-width':.8,'stroke-dasharray':'4 5'}));
+        if (chairModel) {
+            const surfaces=[];
+            const transformChairPoint = ([px,py,pz]) => [(400-px)/6+1.67,pz/6,(py+30)/6];
+            chairModel.parts.forEach(part=>{
+                if (part.material === 'plywood' && part.faces) {
+                    // Use the actual STEP seat outline, including the rear-post
+                    // cutouts. The seat and every frame member share one transform.
+                    part.faces.forEach(face=>{
+                        const points=face.map(transformChairPoint);
+                        const a=points[0],b=points[1],c=points[2];
+                        const normal=[(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]),(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]),(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])];
+                        if (normal[0]+normal[2]+normal[1]*1.4 <= 0) return;
+                        const depth=points.reduce((sum,p)=>sum+p[0]+p[2]+p[1]*.7,0)/points.length;
+                        surfaces.push({points,depth,material:part.material,normal,layer:1});
+                    });
+                    return;
+                }
+                // STEP x = seat depth; y = width; z = height. Uniform 1/6 scale
+                // preserves the measured 400:400:600 proportions and 430 mm seat.
+                const ranges=[{min:part.min,max:part.max,layer:0}];
+                if(part.max[2]>chairModel.seatTop) {
+                    ranges.push({min:[part.min[0],part.min[1],Math.max(part.min[2],chairModel.seatTop)],max:part.max,layer:2});
+                }
+                ranges.forEach(range=>{
+                const vertices=[];
+                for(let z=0;z<2;z++) for(let y=0;y<2;y++) for(let x=0;x<2;x++) {
+                    const px=(x?range.max[0]:range.min[0]);
+                    const py=(y?range.max[1]:range.min[1]);
+                    const pz=(z?range.max[2]:range.min[2]);
+                    // Quarter-turn the actual STEP assembly: rear uprights are at
+                    // the left of its side elevation, matching the stem of F.
+                    vertices.push(transformChairPoint([px,py,pz]));
+                }
+                // Only three outward faces: the far sides are omitted like a CAD
+                // technical illustration, avoiding internal edges through the seat.
+                [[4,6,7,5],[0,2,6,4],[2,3,7,6]].forEach(indices=>{
+                    const points=indices.map(i=>vertices[i]);
+                    const a=points[0],b=points[1],c=points[2];
+                    const normal=[(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]),(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]),(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])];
+                    const depth=points.reduce((sum,p)=>sum+p[0]+p[2]+p[1]*.7,0)/4;
+                    surfaces.push({points,depth,material:part.material,normal,layer:range.layer});
+                });
+                });
             });
-            nodes.append(svgNode('rect', { x: vx - 4, y: vy - 4, width: 8, height: 8 }));
-            if (expanded) {
-                lines.append(svgNode('path', { d: `M300 200L${vx} ${vy}`, 'stroke-dasharray': '3 6', opacity: .25 }));
-            }
+            // Outline the joined silhouette once. Individual box edges would
+            // introduce seams through coplanar members and the plywood seat.
+            const defs=svgNode('defs',{});
+            const filter=svgNode('filter',{id:'chair-silhouette',x:'-10%',y:'-10%',width:'120%',height:'120%','color-interpolation-filters':'sRGB'});
+            filter.append(svgNode('feMorphology',{in:'SourceAlpha',operator:'dilate',radius:.55,result:'expanded'}));
+            filter.append(svgNode('feComposite',{in:'expanded',in2:'SourceAlpha',operator:'out',result:'border'}));
+            filter.append(svgNode('feFlood',{'flood-color':'#777',result:'ink'}));
+            filter.append(svgNode('feComposite',{in:'ink',in2:'border',operator:'in',result:'outline'}));
+            const merge=svgNode('feMerge',{});
+            merge.append(svgNode('feMergeNode',{in:'outline'}),svgNode('feMergeNode',{in:'SourceGraphic'}));
+            filter.append(merge);defs.append(filter);fragment.append(defs);
+            const chairGroup=svgNode('g',{filter:'url(#chair-silhouette)'});
+            fragment.append(chairGroup);
+            surfaces.sort((a,b)=>a.layer-b.layer || a.depth-b.depth).forEach(({points,material,normal})=>{
+                const shade=material==='plywood' ? '#d9d9d9' : Math.abs(normal[1])>0 ? '#fafafa' : '#e9e9e9';
+                chairGroup.append(path([...points,points[0]].map(p=>project(...p)),{fill:shade,stroke:'none'}));
+            });
+        }
+        const fOutline=[[70,100],[0,100],[0,0],[20,0],[20,40],[70,40],[70,60],[20,60],[20,80],[70,80],[70,100]];
+        path(face(faceDepth).map(p=>project(...p)),{stroke:'#999','stroke-width':.8});
+        path(fOutline.map(([x,y])=>project(x,y,faceDepth)),{fill:'#fff','fill-opacity':.12,stroke:'#111','stroke-width':1.4});
+        // Same face coordinates, linked through the volume, rather than two
+        // disconnected objects linked across a flat page.
+        [[0,0],[70,0],[0,100],[70,100]].forEach(([x,y])=>{
+            const a=project(x,y,0),b=project(x,y,faceDepth);
+            (depthFactor>.02?[a,b]:[a]).forEach(([px,py])=>fragment.append(svgNode('rect',{x:px-2.7,y:py-2.7,width:5.4,height:5.4,fill:'#fff',stroke:'#555','stroke-width':.7})));
         });
-        space.querySelector('[data-space-lines]').replaceChildren(lines);
-        space.querySelector('[data-space-nodes]').replaceChildren(nodes);
+        const fLabel=project(35,108,faceDepth),chairLabel=project(35,108,0);
+        if(depthFactor>.3) {
+            label('F',fLabel[0],fLabel[1]-9);
+            label('CHAIR 01',chairLabel[0],chairLabel[1]-9);
+        } else label('F / CHAIR 01',350,26);
+        comparisonDrawing.replaceChildren(fragment);
     }
-    space.addEventListener('click', () => {
-        expanded = !expanded;
-        space.setAttribute('aria-pressed', String(expanded));
-        space.querySelector('[data-space-state]').textContent = expanded ? 'EXPANDED' : 'ASSEMBLED';
-        renderSpace();
+    comparison.addEventListener('click',()=>{
+        collapsed=!collapsed;
+        comparison.setAttribute('aria-pressed',String(collapsed));
+        cancelAnimationFrame(comparisonFrame);
+        const from=collapseAmount,to=collapsed?1:0,start=performance.now();
+        const animate=now=>{
+            const progress=reducedMotion.matches?1:Math.min(1,(now-start)/650);
+            collapseAmount=from+(to-from)*(1-Math.pow(1-progress,3));
+            renderComparison();
+            if(progress<1)comparisonFrame=requestAnimationFrame(animate);
+        };
+        comparisonFrame=requestAnimationFrame(animate);
     });
-    graphicPointer(space, renderSpace);
-    renderSpace();
+    graphicPointer(comparison,(x,y)=>{viewX=-x;viewY=y;renderComparison();});
+    fetch('./assets/typeface/chair01-frame.json').then(response=>{
+        if(!response.ok)throw new Error('CHAIR 01 geometry unavailable');
+        return response.json();
+    }).then(data=>{chairModel=data;renderComparison();}).catch(()=>{
+        comparison.setAttribute('aria-label','CHAIR 01 model could not be loaded. Reload to try again.');
+        const label=svgNode('text',{x:300,y:410,'text-anchor':'middle',class:'lab-svg-label'});
+        label.textContent='CHAIR 01 — LOAD ERROR';comparisonDrawing.append(label);
+    });
+    renderComparison();
 
     new ResizeObserver(() => {
         const rect = orbit.querySelector('.lab-orbit-stage').getBoundingClientRect();

@@ -2141,7 +2141,7 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .lab-orbit-letter { position: absolute; left: 50%; top: 50%; width: 1em; height: 1em; margin: -.5em; font: clamp(16px, 2vw, 32px)/1 var(--font-mono); letter-spacing: 0; text-align: center; transform: rotate(var(--angle)) translateY(var(--orbit-radius, -100px)) rotate(calc(-1 * var(--angle))); }
 .lab-orbit-core { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: clamp(64px, 8vw, 140px)/1 var(--font-mono); letter-spacing: 0; }
 .lab-reels { background: #111; color: #fff; }
-.lab-echo { grid-column: span 12; aspect-ratio: 2.2; }
+.lab-echo { grid-column: span 6; aspect-ratio: 1.18; }
 .lab-echo { color: #fff; background: #111; }
 .lab-echo-stage { position: absolute; inset: 60px 24px; display: flex; align-items: center; justify-content: center; }
 .lab-echo-stage > span { position: absolute; font: clamp(48px, 7.5vw, 130px)/1 var(--font-mono); letter-spacing: 0; color: #111; -webkit-text-stroke: 1px #777; transform: translate(calc(var(--layer) * (9px + var(--mx) * 7px)), calc(var(--layer) * (13px + var(--my) * 8px))); transition: transform .35s ease-out; }
@@ -2170,17 +2170,13 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 }
 
 /* Geometric studies keep the graphic language independent of the type specimens. */
-.lab-projection, .lab-space { grid-column: span 6; aspect-ratio: 1.25; }
+.lab-projection { grid-column: span 12; aspect-ratio: 2; }
 .lab-projection { background: #f5f5f5; }
-.lab-space { background: #f9f9f9; }
-.lab-projection > svg, .lab-space > svg { position: absolute; inset: 45px 0; width: 100%; height: calc(100% - 90px); }
+.lab-projection > svg { position: absolute; inset: 45px 0; width: 100%; height: calc(100% - 90px); }
 .lab-projection-rays { fill: none; stroke: #555; stroke-width: .8; }
 .lab-projection-labels { fill: #555; font: 11px "Geist", sans-serif; text-anchor: middle; letter-spacing: 1px; }
-.lab-space-axes { stroke: #999; stroke-width: .7; stroke-dasharray: 3 5; fill: none; }
-.lab-space [data-space-lines] { fill: none; stroke: #111; stroke-width: 1.1; }
-.lab-space [data-space-nodes] { fill: #fff; stroke: #111; stroke-width: 1; }
 @media (max-width: 767px) {
-    .lab-projection, .lab-space { grid-column: span 2; aspect-ratio: 1.05; }
+    .lab-projection { grid-column: span 2; aspect-ratio: 1.05; }
 }
 
 /* Dense character cells keep the board proportionate to the font's advance. */
@@ -2193,6 +2189,15 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 @keyframes lab-flap-turn { 0% { transform: rotateX(55deg); } 55% { transform: rotateX(0); } 100% { transform: rotateX(-55deg); } }
 @media (max-width: 767px) {
     .lab-reels { height: auto; padding: 0; }
-    .lab-reel-window { gap: 1px; }
+    .lab-reel-window { gap: 1px; perspective: none; }
+    .lab-flap { border-color: #242424; }
+    .lab-flap::after { display: none; }
+    .lab-flap.is-flipping > span { animation: none; }
 }
 @media (prefers-reduced-motion: reduce) { .lab-flap.is-flipping > span { animation: none; } }
+
+
+.lab-comparison { grid-column: span 6; aspect-ratio: 1.18; background: #f9f9f9; }
+.lab-comparison > svg { display: block; width: 100%; height: 100%; }
+.lab-comparison .lab-caption { font-size: 10px; }
+@media (max-width: 767px) { .lab-comparison { grid-column: span 2; } }
