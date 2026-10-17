@@ -1,28 +1,41 @@
 const title = document.querySelector('.page-typeface .typeface-title h1');
 if (title) {
-    let initialText = true;
-    const defaultText = title.textContent.trim();
-    const fitTitle = () => {
-        if (!initialText) return;
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        context.font = '100px "FRMFRM Mono"';
-        const naturalWidth = context.measureText(defaultText).width;
-        const spacing = -3 * (defaultText.length - 1);
-        const size = Math.max(24, Math.min(180, title.parentElement.clientWidth * 100 / (naturalWidth + spacing)));
-        title.style.fontSize = `${size}px`;
+    let interrupted = false;
+    let timer;
+    const defaultText = title.dataset.introText;
+    const sizeControl = document.getElementById('type-tester-size');
+    const sizeValue = document.getElementById('type-tester-size-value');
+    if (sizeControl && sizeValue) {
+        sizeControl.value = '180';
+        const updateSize = () => {
+            title.style.fontSize = `${sizeControl.value}px`;
+            sizeValue.value = `${sizeControl.value} PX`;
+            sizeControl.setAttribute('aria-valuetext', `${sizeControl.value} pixels`);
+        };
+        sizeControl.addEventListener('input', updateSize);
+        updateSize();
+    }
+    const stopIntro = () => {
+        interrupted = true;
+        clearTimeout(timer);
     };
-    title.addEventListener('input', () => { initialText = false; });
+    // Stop before the browser places the caret or applies an edit.
+    ['pointerdown', 'focus', 'keydown', 'beforeinput', 'compositionstart', 'paste', 'drop', 'input']
+        .forEach(event => title.addEventListener(event, stopIntro));
+
     document.fonts.ready.then(() => {
-        fitTitle();
-        title.focus({ preventScroll: true });
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(title);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        new ResizeObserver(fitTitle).observe(title.parentElement);
+        if (interrupted) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            title.textContent = defaultText;
+            return;
+        }
+        let length = 0;
+        const typeNext = () => {
+            if (interrupted) return;
+            title.textContent = defaultText.slice(0, ++length);
+            if (length < defaultText.length) timer = setTimeout(typeNext, 140);
+        };
+        timer = setTimeout(typeNext, 350);
     });
 }
 

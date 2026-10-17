@@ -13,29 +13,14 @@
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-    const menuToggle = document.querySelector('.header-profile');
-    const navigation = document.getElementById('main-navigation');
-    if (menuToggle && navigation) {
-        const setMenuOpen = open => {
-            menuToggle.setAttribute('aria-expanded', String(open));
-            menuToggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
-            navigation.hidden = !open;
-        };
-        const mobileMenu = window.matchMedia('(max-width: 767px)');
-        const isHomePage = document.body.classList.contains('page-home');
-        setMenuOpen(isHomePage || !mobileMenu.matches);
-        mobileMenu.addEventListener('change', event => setMenuOpen(isHomePage || !event.matches));
+    const profileButton = document.querySelector('.header-profile');
+    if (profileButton) {
         let profileRotation = 0;
-        menuToggle.addEventListener('click', () => {
+        profileButton.addEventListener('click', () => {
             profileRotation += 90;
-            menuToggle.style.setProperty('--profile-rotation', `${profileRotation}deg`);
-            setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
-        });
-        navigation.addEventListener('keydown', event => {
-            if (event.key === 'Escape') {
-                setMenuOpen(false);
-                menuToggle.focus();
-            }
+            profileButton.style.setProperty('--profile-rotation', `${profileRotation}deg`);
+            const filled = profileButton.getAttribute('aria-pressed') !== 'true';
+            profileButton.setAttribute('aria-pressed', String(filled));
         });
     }
 
