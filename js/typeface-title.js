@@ -6,7 +6,7 @@ if (title) {
     const sizeControl = document.getElementById('type-tester-size');
     const sizeValue = document.getElementById('type-tester-size-value');
     if (sizeControl && sizeValue) {
-        sizeControl.value = '180';
+        sizeControl.value = window.matchMedia('(max-width: 767px)').matches ? '60' : '180';
         const updateSize = () => {
             title.style.fontSize = `${sizeControl.value}px`;
             sizeValue.value = `${sizeControl.value} PX`;

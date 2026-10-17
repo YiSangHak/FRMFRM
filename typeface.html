@@ -74,19 +74,12 @@
             </div>
         </section>
 
-        <section class="mono-lab" id="mono-lab" aria-labelledby="mono-lab-heading">
-            <header class="mono-lab-header">
-                <h2 id="mono-lab-heading">FRMFRM MONO IN MOTION</h2>
-                <span>SIX STUDIES IN STRUCTURE & FORM</span>
-            </header>
+        <section class="mono-lab" id="mono-lab" aria-label="Interactive FRMFRM MONO studies">
             <div class="mono-lab-grid">
                 <button class="lab-panel lab-masthead" data-study="masthead" aria-label="Invert the FROM FORM poster">
-                    <span class="lab-caption"><span>01 / FORM FOLLOWS FRAME</span><span>MOVE / CLICK TO INVERT</span></span>
                     <span class="lab-masthead-type" aria-hidden="true"><span>FROM</span><span>FORM</span></span>
-                    <span class="lab-caption lab-bottom"><span>ONE SYSTEM. MANY FORMS.</span><span>FRMFRM — MONO</span></span>
                 </button>
                 <button class="lab-panel lab-construction" data-study="construction" aria-label="Change the letter in the construction diagram">
-                    <span class="lab-caption"><span>02 / CONSTRUCTION</span><span>CLICK TO CHANGE</span></span>
                     <svg viewBox="0 0 400 400" aria-hidden="true">
                         <defs><pattern id="lab-grid" x="102" y="46" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#bbb" stroke-width=".6"/></pattern></defs>
                         <rect x="102" y="46" width="196" height="280" fill="url(#lab-grid)" stroke="#bbb" stroke-width=".6"/>
@@ -100,32 +93,45 @@
                     <span class="lab-caption lab-bottom"><span>70:100 / 10 UNIT GRID</span><span data-construction-char>M</span></span>
                 </button>
                 <button class="lab-panel lab-orbit" data-study="orbit" aria-label="Turn the alphabet dial clockwise">
-                    <span class="lab-caption"><span>03 / CHARACTER DIAL</span><span>MOVE / CLICK TO TURN</span></span>
                     <span class="lab-orbit-stage" aria-hidden="true">
                         <svg viewBox="0 0 400 400"><circle cx="200" cy="200" r="152"/><circle cx="200" cy="200" r="112"/><path d="M22 200H378M200 22V378"/><g class="lab-orbit-ticks"></g></svg>
                         <span class="lab-orbit-ring"></span><span class="lab-orbit-core">F</span>
                     </span>
-                    <span class="lab-caption lab-bottom"><span>A—Z / FIXED ADVANCE</span><span>↻</span></span>
                 </button>
-                <button class="lab-panel lab-reels" data-study="reels" aria-label="Spin the four letter reels">
-                    <span class="lab-caption"><span>04 / TYPE MECHANISM</span><span>CLICK TO SPIN</span></span>
+                <button class="lab-panel lab-reels" data-study="reels" aria-label="FRMFRM MONO split-flap display. Activate to change the message.">
                     <span class="lab-reel-window" aria-hidden="true"></span>
-                    <span class="lab-reel-rule" aria-hidden="true"></span>
-                    <span class="lab-caption lab-bottom"><span>FOUR UNITS. ONE RHYTHM.</span><span data-reel-word>MONO</span></span>
                 </button>
                 <button class="lab-panel lab-echo" data-study="echo" aria-label="Change the word in the typographic echo">
-                    <span class="lab-caption"><span>05 / STRUCTURAL ECHO</span><span>MOVE / CLICK TO CHANGE</span></span>
                     <span class="lab-echo-stage" aria-hidden="true"><span>FRAME</span><span>FRAME</span><span>FRAME</span><span>FRAME</span><span>FRAME</span><span>FRAME</span><span>FRAME</span></span>
-                    <span class="lab-caption lab-bottom"><span>REPETITION BUILDS STRUCTURE.</span><span>FRMFRM MONO</span></span>
                 </button>
                 <button class="lab-panel lab-measure" data-study="measure" aria-label="Show or hide the fixed-width character guides" aria-pressed="true">
-                    <span class="lab-caption"><span>06 / EQUAL SPACE</span><span>CLICK TO TOGGLE GUIDES</span></span>
                     <span class="lab-measure-ruler" aria-hidden="true"></span>
                     <span class="lab-measure-lines" aria-hidden="true"></span>
-                    <span class="lab-caption lab-bottom"><span>DIFFERENT FORMS. EQUAL WIDTHS.</span><span>1:1:1:1</span></span>
+                    <span class="lab-caption lab-bottom"><span>1:1:1:1:1:1</span></span>
+                </button>
+                <button class="lab-panel lab-projection" data-study="projection" aria-label="Change the geometric projection. Move the pointer to adjust the wireframe.">
+                    <svg viewBox="0 0 600 400" aria-hidden="true">
+                        <path d="M40 200L560 55M40 200L560 345M40 200H560" class="lab-projection-rays"/>
+                        <g data-projection-forms></g>
+                        <g class="lab-projection-labels"><text x="155" y="256">POINT</text><text x="285" y="290">PLANE</text><text x="455" y="340">FORM</text></g>
+                    </svg>
+                </button>
+                <button class="lab-panel lab-space" data-study="space" aria-label="Expand or assemble the wireframe structure. Move the pointer to rotate it." aria-pressed="false">
+                    <svg viewBox="0 0 600 400" aria-hidden="true">
+                        <defs><pattern id="lab-space-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#ddd" stroke-width=".6"/></pattern></defs>
+                        <rect x="60" y="50" width="480" height="300" fill="url(#lab-space-grid)"/>
+                        <path d="M300 30V370M30 200H570" class="lab-space-axes"/>
+                        <g data-space-lines></g><g data-space-nodes></g>
+                        <text x="555" y="218" class="lab-svg-label">X</text><text x="309" y="40" class="lab-svg-label">Y</text>
+                    </svg>
+                    <span class="lab-caption lab-bottom"><span data-space-state>ASSEMBLED</span></span>
+                </button>
+                <button class="lab-panel lab-immersive" data-study="immersive" aria-label="Full-screen FRMFRM MONO poster. Move to shift letters. Click to change the word.">
+                    <span class="lab-immersive-guides" aria-hidden="true"></span>
+                    <span class="lab-immersive-type" aria-hidden="true"><span><i>F</i></span><span><i>O</i></span><span><i>R</i></span><span><i>M</i></span></span>
+                    <span class="lab-immersive-rail" aria-hidden="true"></span>
                 </button>
             </div>
-            <p class="mono-lab-note">MOVE, CLICK, EXPLORE. <span lang="ko">각 장면 위로 마우스를 움직이거나 눌러보세요.</span></p>
         </section>
 
         <!-- Typeface information -->
@@ -187,8 +193,8 @@
 
 
     <script src="./js/main.js"></script>
-    <script type="module" src="./js/typeface-title.js?v=size-slider-08"></script>
-    <script type="module" src="./js/typeface-field.js?v=studies-02"></script>
+    <script type="module" src="./js/typeface-title.js?v=mobile-60-09"></script>
+    <script type="module" src="./js/typeface-field.js?v=character-art-09"></script>
     <script type="module" src="./js/typeface-glyphs.js?v=anchors-30"></script>
 
 </body>
