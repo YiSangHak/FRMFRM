@@ -94,7 +94,8 @@ if (lab) {
     const reelWindow = reels.querySelector('.lab-reel-window');
     const smallBoard = window.matchMedia('(max-width: 767px)');
     const reelAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!()+-.=?[]_{|} ';
-    const scenes = ['FRAME / STOOL', 'FRMFRM MONO', 'SPATIAL STUDY', 'FRMFRM MONO / LARGE LETTERS', 'STRUCTURAL RHYTHM', 'FRAME / CHAIR', 'PROFILE SECTION', 'STOOL / ISOMETRIC FRAME'];
+    const description = 'FRMFRM MONO is a modular monospaced display typeface developed from the structural principles of aluminum profiles.';
+    const scenes = [description, 'ORTHOGONAL', 'STRUCTURAL', 'MODULAR', 'STANDARDIZED', 'Aluminum Profile', 'FRMFRM'];
     let messageIndex = 0, boardCells = [], boardFrame = 0, boardVisible = false;
     let targets = [], columns = 48, rows = 22;
     const hoverTimers = new Map();
@@ -106,7 +107,7 @@ if (lab) {
         const applyBoardMetadata = () => {
             reels.style.setProperty('--board-columns', columns);
             reels.style.setProperty('--board-rows', rows);
-            reels.setAttribute('aria-label', `${scenes[messageIndex]}. Split-flap character art. Activate for the next composition.`);
+            reels.setAttribute('aria-label', `${scenes[messageIndex]} Split-flap display. Activate for the next composition.`);
         };
         if (boardCache.has(cacheKey)) { targets = boardCache.get(cacheKey); applyBoardMetadata(); return; }
         const grid = Array.from({ length: rows }, () => Array(columns).fill(' '));
@@ -116,102 +117,31 @@ if (lab) {
             const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
             for (let i = 0; i <= steps; i++) put(Math.round(x1 + (x2 - x1) * i / Math.max(steps, 1)), Math.round(y1 + (y2 - y1) * i / Math.max(steps, 1)), char);
         };
-        // Rasterize each glyph separately, with a guaranteed empty column between letters.
-        // Area sampling preserves complete strokes instead of testing a single pixel.
-        const largeWord = (word, top, height) => {
-            const gap = 1;
-            const measure = document.createElement('canvas').getContext('2d');
-            measure.font = '100px "FRMFRM Mono"';
-            const metricsList = [...word].map(char => measure.measureText(char));
-            const maxWidth = Math.max(...metricsList.map(m => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
-            const maxHeight = Math.max(...metricsList.map(m => m.actualBoundingBoxAscent + m.actualBoundingBoxDescent));
-            const usable = columns - (word.length - 1) * gap;
-            const scale = Math.min(usable * 16 / word.length / maxWidth, height * 16 / (maxHeight * .78));
-            const cellWidth = Math.floor(maxWidth * scale / 16);
-            const start = Math.floor((columns - (cellWidth * word.length + (word.length - 1) * gap)) / 2);
-            [...word].forEach((char, index) => {
-                const left = start + index * (cellWidth + gap);
-                const bitmap = document.createElement('canvas');
-                bitmap.width = cellWidth * 16; bitmap.height = height * 16;
-                const context = bitmap.getContext('2d', { willReadFrequently: true });
-                context.font = '100px "FRMFRM Mono"';
-                const metrics = context.measureText(char);
-                const inkWidth = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
-                const inkHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                const glyphScale = Math.min(bitmap.width / inkWidth, bitmap.height / (inkHeight * .78));
-                context.translate((bitmap.width - inkWidth * glyphScale) / 2, (bitmap.height - inkHeight * glyphScale * .78) / 2);
-                context.scale(glyphScale, glyphScale * .78);
-                context.fillStyle = '#fff';
-                context.fillText(char, metrics.actualBoundingBoxLeft, metrics.actualBoundingBoxAscent);
-                const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
-                for (let y = 0; y < height; y++) for (let x = 0; x < cellWidth; x++) {
-                    let coverage = 0;
-                    for (let py = 0; py < 16; py++) for (let px = 0; px < 16; px++) {
-                        coverage += pixels[((y * 16 + py) * bitmap.width + x * 16 + px) * 4 + 3];
-                    }
-                    if (coverage / (256 * 255) >= .38) put(left + x, top + y, 'M');
-                }
-            });
-        };
         if (messageIndex === 0) {
-            const cx = Math.floor(columns / 2), half = smallBoard.matches ? 9 : 13;
-            const a = [cx - half, 4], b = [cx + half - 5, 4], c = [cx + half, 7], d = [cx - half + 5, 7];
-            [ [a,b], [b,c], [c,d], [d,a] ].forEach(([p,q]) => line(...p,...q,'='));
-            [a,b,c,d].forEach(([x,y]) => { line(x,y+1,x,y+10,'|'); put(x,y,'+'); put(x,y+10,'+'); });
-            line(a[0],14,b[0],14,'-'); line(b[0],14,c[0],17,'-');
-            line(c[0],17,d[0],17,'='); line(d[0],17,a[0],14,'-');
-            [a,b,c,d].forEach(([x,y]) => { put(x,y,'+'); put(x,y+10,'+'); });
-
+            // Keep the description as text: one character per flap, never enlarged glyphs.
+            const left = smallBoard.matches ? 2 : 5;
+            const width = columns - left * 2;
+            const phrases = [];
+            for (const word of description.toUpperCase().split(' ')) {
+                const last = phrases.length - 1;
+                if (last < 0 || phrases[last].length + word.length + 1 > width) phrases.push(word);
+                else phrases[last] += ` ${word}`;
+            }
+            const firstRow = Math.floor((rows - (phrases.length * 2 - 1)) / 2);
+            phrases.forEach((phrase, index) => text(phrase, firstRow + index * 2, left));
         } else if (messageIndex === 1) {
-            if (smallBoard.matches) {
-                largeWord('FRM', 0, 9); largeWord('FRM', 10, 9); text('MONO', 21);
-            } else {
-                largeWord('FRMFRM', 4, 12); text('FRMFRM MONO', 19);
-            }
-        } else if (messageIndex === 2) {
-            const cx = (columns - 1) / 2, cy = 10.5;
-            for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
-                const nx = (x - cx) / (columns * .35), ny = (y - cy) / 7.5;
-                const radius = nx * nx + ny * ny;
-                if (Math.abs(radius - 1) < .14) put(x, y, '+');
-                else if (radius < 1 && (Math.abs(nx) < .055 || Math.abs(ny) < .07)) put(x,y, Math.abs(nx) < .055 ? '|' : '-');
-                else if (radius < 1 && (Math.abs(nx * nx * 4 + ny * ny - 1) < .19 || Math.abs(nx * nx + ny * ny * 5 - 1) < .2)) put(x,y,'.');
-            }
-
-        } else if (messageIndex === 3) {
-            if (smallBoard.matches) {
-                largeWord('FRM', 0, 9); largeWord('FRM', 10, 9); text('MONO', 21);
-            } else {
-                largeWord('FRMFRM', 1, 9); largeWord('MONO', 12, 9);
-            }
-        } else if (messageIndex === 4) {
-            for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
-                const wave = Math.sin(x * .28) * 3.2 + Math.cos(x * .13) * 2;
-                const distance = Math.abs(y - 10 - wave);
-                if (distance < 1.2) put(x,y,'FRMFRM'[x % 6]);
-                else if (distance < 2.8) put(x,y,'+');
-                else if (distance < 4.4) put(x,y,'.');
-            }
-
-        } else if (messageIndex === 5) {
-            const cx = Math.floor(columns / 2);
-            const width = smallBoard.matches ? 7 : 10;
-            const backLeft = cx - width, backRight = cx + width - 4;
-            line(backLeft, 2, backRight, 2, '=');
-            line(backLeft, 2, backLeft, 10, '|');
-            line(backRight, 2, backRight, 10, '|');
-            line(backLeft, 6, backRight, 6, '-');
-            const corners = [[backLeft,10], [backRight,10], [backRight+4,13], [backLeft+4,13]];
-            corners.forEach(([x,y],i) => {
-                const next = corners[(i + 1) % 4];
-                line(x,y,...next,'=');
-                line(x,y+1,x,y+7,'|');
-                put(x,y,'+'); put(x,y+7,'+');
-            });
-            line(backLeft+4,18,backRight+4,18,'-');
-            [[backLeft,2],[backRight,2]].forEach(([x,y]) => put(x,y,'+'));
-        } else if (messageIndex === 6) {
-            // Four identical quadrants form an orthogonal profile cross-section.
+            // Identical rails meet at one exposed orthogonal joint.
+            const cx = Math.floor(columns / 2), cy = 10;
+            const reach = smallBoard.matches ? 8 : 15;
+            line(cx - reach, cy - 1, cx + reach, cy - 1, '-');
+            line(cx - reach, cy + 1, cx + reach, cy + 1, '-');
+            line(cx - 1, 3, cx - 1, 17, '|');
+            line(cx + 1, 3, cx + 1, 17, '|');
+            [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,y]) => put(cx+x,cy+y,'+'));
+            put(cx, cy, '+');
+            text('ORTHOGONAL', 20);
+        } else if (scenes[messageIndex] === 'Aluminum Profile') {
+            // Restore the four-quadrant profile section, sharing the joint study's center and caption baseline.
             const cx = Math.floor(columns / 2), cy = 10;
             for (let y = -8; y <= 8; y++) for (let x = -10; x <= 10; x++) {
                 const ax = Math.abs(x), ay = Math.abs(y);
@@ -220,34 +150,68 @@ if (lab) {
                 if ((ax === 10 && ay >= 4) || (ax === 5 && ay >= 4) || (ax === 2 && ay <= 2)) char = '|';
                 if ((ax === 5 && ay === 4) || (ax === 10 && ay === 8) || (ax === 2 && ay === 2)) char = '+';
                 if (ax >= 3 && ax <= 5 && ay === ax - 1) char = '+';
-                if (char !== ' ') put(cx+x,cy+y,char);
+                if (char !== ' ') put(cx + x, cy + y, char);
             }
-            put(cx,cy,'+');
-        } else if (messageIndex === 7) {
-            // Symmetric axonometric seat and cubic frame, centered on the board.
+            put(cx, cy, '+');
+            text('Aluminum Profile', 20);
+        } else if (scenes[messageIndex] === 'MODULAR') {
+            // Repeated open modules: shared members and visible connection points.
+            const step = smallBoard.matches ? 5 : 9;
+            const left = Math.floor((columns - step * 4 - 1) / 2);
+            for (let row = 0; row <= 4; row++) line(left, 2 + row * 4, left + step * 4, 2 + row * 4, '-');
+            for (let col = 0; col <= 4; col++) line(left + col * step, 2, left + col * step, 18, '|');
+            for (let row = 0; row <= 4; row++) for (let col = 0; col <= 4; col++) put(left + col * step, 2 + row * 4, '+');
+            text('MODULAR', 20);
+        } else if (scenes[messageIndex] === 'STRUCTURAL') {
+            // A continuous beam, uprights and lower ties expose the supporting frame.
             const cx = Math.floor(columns / 2);
-            const half = smallBoard.matches ? 10 : 13;
-            const top = [cx, 2], right = [cx + half, 6];
-            const front = [cx, 10], left = [cx - half, 6];
-            const drop = 10;
-            // Recessed rear rails stay light, so the visible frame reads first.
-            line(top[0], top[1] + 2, top[0], top[1] + drop, '.');
-            line(cx - half, 6 + drop, cx, 2 + drop, '.');
-            line(cx, 2 + drop, cx + half, 6 + drop, '.');
-            // A restrained surface texture distinguishes the seat from the open frame.
-            for (let y = 3; y < 10; y++) for (let x = cx - half + 1; x < cx + half; x++) {
-                if (Math.abs(x - cx) / half + Math.abs(y - 6) / 4 < .85) put(x, y, (x + y) % 3 === 0 ? '-' : '.');
-            }
-            [[top,right], [right,front], [front,left], [left,top]].forEach(([a,b]) => line(...a,...b,'='));
-            [[left,front], [front,right]].forEach(([a,b]) => {
-                line(a[0], a[1] + 1, b[0], b[1] + 1, '-');
-                line(a[0], a[1] + drop, b[0], b[1] + drop, '=');
+            const half = smallBoard.matches ? 9 : 17;
+            const left = cx - half, right = cx + half;
+            line(left, 4, right, 4, '=');
+            line(left, 6, right, 6, '-');
+            [left, cx, right].forEach(x => {
+                line(x, 4, x, 17, '|');
+                [4, 6, 15, 17].forEach(y => put(x, y, '+'));
             });
-            [left, front, right].forEach(([x,y]) => {
-                line(x,y+1,x,y+drop,'|');
-                put(x,y,'+'); put(x,y+drop,'+');
+            line(left, 15, right, 15, '-');
+            line(left - 1, 17, right + 1, 17, '=');
+            [left, cx, right].forEach(x => put(x, 15, '+'));
+            text('STRUCTURAL', 20);
+        } else if (scenes[messageIndex] === 'STANDARDIZED') {
+            // Identical members share a length, section and connection spacing.
+            const cx = Math.floor(columns / 2);
+            const half = smallBoard.matches ? 8 : 15;
+            [3, 9, 15].forEach(top => {
+                line(cx - half, top, cx + half, top, '-');
+                line(cx - half, top + 2, cx + half, top + 2, '-');
+                [cx - half, cx + half].forEach(x => {
+                    put(x, top, '+'); put(x, top + 1, '|'); put(x, top + 2, '+');
+                });
+                [cx - half + 3, cx, cx + half - 3].forEach(x => put(x, top + 1, '+'));
             });
-            put(...top,'+');
+            text('STANDARDIZED', 20);
+        } else if (scenes[messageIndex] === 'FRMFRM') {
+            // Fixed bitmap strokes and two empty columns keep adjacent letters distinct.
+            const letters = {
+                F: ['11111', '10000', '10000', '11110', '10000', '10000', '10000'],
+                R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+                M: ['10001', '11011', '10101', '10101', '10001', '10001', '10001']
+            };
+            const drawWord = (word, top, rowScale) => {
+                const start = Math.floor((columns - (word.length * 7 - 2)) / 2);
+                [...word].forEach((char, index) => {
+                    letters[char].forEach((row, y) => {
+                        [...row].forEach((pixel, x) => {
+                            if (pixel !== '1') return;
+                            for (let dy = 0; dy < rowScale; dy++) put(start + index * 7 + x, top + y * rowScale + dy, char);
+                        });
+                    });
+                });
+            };
+            if (smallBoard.matches) {
+                drawWord('FRM', 2, 1);
+                drawWord('FRM', 12, 1);
+            } else drawWord('FRMFRM', 7, 1);
         }
         targets = grid.flat();
         boardCache.set(cacheKey, targets);
@@ -312,7 +276,7 @@ if (lab) {
         boardFrame = requestAnimationFrame(tick);
     }
     buildBoard();
-    document.fonts.load('100px \"FRMFRM Mono\"').then(() => { boardCache.clear(); if ((messageIndex === 1 || messageIndex === 3) && !boardFrame) { boardText(); settleBoard(); } });
+
     reelWindow.addEventListener('pointermove', event => {
         if (boardFrame || reducedMotion.matches || event.pointerType === 'touch') return;
         const cell = event.target.closest('.lab-flap');
