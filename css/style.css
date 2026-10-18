@@ -2176,3 +2176,34 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
     letter-spacing: 0;
     white-space: nowrap;
 }
+
+/* Furniture and type share a common structural language. */
+.about-intro .about-brand-diagram {
+    grid-column: 3 / 11;
+    grid-row: 3;
+    width: 100%;
+    max-width: 800px;
+    margin: 24px auto 0;
+}
+.about-brand-diagram > svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; user-select: none; cursor: grab; }
+.about-brand-diagram.is-dragging > svg { cursor: grabbing; touch-action: none; }
+.brand-diagram-circle { fill: transparent; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.brand-diagram-label, .brand-diagram-center { fill: currentColor; text-anchor: middle; dominant-baseline: central; letter-spacing: 0; pointer-events: none; }
+.brand-diagram-label { font-family: var(--font-en); font-size: 23px; font-weight: 400; }
+.brand-diagram-center { font-family: var(--font-mono); font-size: 30px; font-weight: 400; }
+@media (max-width: 767px) {
+    .about-intro .about-brand-diagram { grid-column: 1 / -1; margin-top: 8px; }
+    .brand-diagram-label { font-size: 25px; }
+    .brand-diagram-center { font-size: 32px; }
+}
+
+/* Suppress Safari's native tap overlay without disabling keyboard focus. */
+html { -webkit-tap-highlight-color: transparent; }
+.about-brand-diagram,
+.about-logo-inspector,
+.home-model,
+.lab-panel {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
