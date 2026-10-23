@@ -1519,28 +1519,14 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 }
 
 
-/* Header logo: outlined at rest, filled on hover or keyboard focus. */
+/* Header logo: always filled. */
 .site-logo-mark {
     display: block;
     width: 100%;
     height: auto;
     overflow: visible;
-    fill: transparent;
-    stroke: currentColor;
-    stroke-width: 0.75px;
-}
-.site-logo-mark path,
-.site-logo-mark polygon {
-    vector-effect: non-scaling-stroke;
-    transition: fill 180ms ease;
-}
-.site-logo:hover .site-logo-mark,
-.site-logo:focus-visible .site-logo-mark {
     fill: currentColor;
-}
-@media (prefers-reduced-motion: reduce) {
-    .site-logo-mark path,
-    .site-logo-mark polygon { transition: none; }
+    stroke: none;
 }
 
 /* Typeface glyph explorer — original outlines and control points. */
