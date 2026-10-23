@@ -37,6 +37,7 @@ if (lab) {
         construction.setAttribute('aria-label', `Construction diagram of ${char}. Activate to change letter.`);
         const group = construction.querySelector('.lab-glyph-shape');
         group.replaceChildren();
+        group.classList.remove('is-glyph-hovered');
         const glyph = glyphData?.glyphs.find(item => item.char === char);
         if (!glyph) return;
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -53,6 +54,17 @@ if (lab) {
             dot.setAttribute('stroke-width', 3);
             group.append(dot);
         });
+        // Keep the actual letter interior interactive even when its fill disappears.
+        const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        hit.setAttribute('d', glyph.path);
+        hit.setAttribute('fill', 'transparent');
+        hit.setAttribute('stroke', 'none');
+        hit.setAttribute('pointer-events', 'fill');
+        hit.addEventListener('pointerenter', event => {
+            if (event.pointerType !== 'touch') group.classList.add('is-glyph-hovered');
+        });
+        hit.addEventListener('pointerleave', () => group.classList.remove('is-glyph-hovered'));
+        group.append(hit);
     }
     construction.addEventListener('click', () => { glyphIndex = (glyphIndex + 1) % alphabet.length; drawConstruction(); });
     fetch('./assets/typeface/frmfrm-mono-glyphs.json')

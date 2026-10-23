@@ -2066,8 +2066,8 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .lab-guide { fill: none; stroke: #000; stroke-width: .7; }
 .lab-dashed { stroke-dasharray: 3 4; opacity: .45; }
 .lab-svg-label { fill: #000; font: 11px "Geist", sans-serif; letter-spacing: 0; }
-.lab-glyph-shape { fill: #111; stroke: #111; stroke-width: 2; }
-.lab-construction:hover .lab-glyph-shape { fill: transparent; }
+.lab-glyph-shape { fill: #111; stroke: #111; stroke-width: 2; pointer-events: none; }
+.lab-glyph-shape.is-glyph-hovered { fill: transparent; }
 .lab-orbit { background: #f6f6f6; }
 .lab-orbit-stage { position: absolute; inset: 44px 0; display: block; }
 .lab-orbit-stage > svg { width: 100%; height: 100%; fill: none; stroke: #999; stroke-width: .7; }
