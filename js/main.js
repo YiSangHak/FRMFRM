@@ -13,6 +13,7 @@
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
+    initSmoothScroll();
     const profileButton = document.querySelector('.header-profile');
     if (profileButton) {
         let profileRotation = 0;
@@ -37,6 +38,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+// Ease wheel and trackpad input without changing the document's native layout.
+function initSmoothScroll() {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let target = window.scrollY;
+    let lastTime = 0;
+    const stop = () => {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        target = window.scrollY;
+    };
+    const maximum = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const animate = time => {
+        const elapsed = Math.min(time - lastTime, 64);
+        lastTime = time;
+        target = Math.max(0, Math.min(target, maximum()));
+        const next = window.scrollY + (target - window.scrollY) * (1 - Math.exp(-elapsed / 160));
+        window.scrollTo({ top: Math.abs(target - next) < 1 ? target : next, behavior: 'instant' });
+        if (Math.abs(target - window.scrollY) < 1) {
+            frame = 0;
+        } else {
+            frame = requestAnimationFrame(animate);
+        }
+    };
+    window.addEventListener('wheel', event => {
+        if (reducedMotion.matches || event.ctrlKey || event.metaKey || event.shiftKey ||
+            !event.cancelable || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+            stop();
+            return;
+        }
+        if (!event.deltaY) return;
+        for (let node = event.target instanceof Element ? event.target : null;
+            node && node !== document.body && node !== document.documentElement; node = node.parentElement) {
+            if (node.matches('input, textarea, select, [contenteditable]:not([contenteditable="false"])') ||
+                (/auto|scroll/.test(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight)) {
+                stop();
+                return;
+            }
+        }
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+        if (!frame) target = window.scrollY;
+        target = Math.max(0, Math.min(target + delta, maximum()));
+        if (target === window.scrollY && !frame) return;
+        event.preventDefault();
+        if (!frame) {
+            lastTime = performance.now();
+            frame = requestAnimationFrame(animate);
+        }
+    }, { passive: false });
+    window.addEventListener('pointerdown', stop, { passive: true });
+    window.addEventListener('touchstart', stop, { passive: true });
+    window.addEventListener('keydown', stop);
+    window.addEventListener('resize', stop);
+    window.addEventListener('hashchange', stop);
+    reducedMotion.addEventListener('change', stop);
+}
 
 
 /* ============================================================
