@@ -14,9 +14,6 @@ if (lab) {
             pending = requestAnimationFrame(() => {
                 panel.style.setProperty('--mx', x.toFixed(3));
                 panel.style.setProperty('--my', y.toFixed(3));
-                if (panel.dataset.study === 'orbit') {
-                    panel.style.setProperty('--dial-angle', `${Math.atan2(y, x) * 180 / Math.PI + 90}deg`);
-                }
             });
         };
         panel.addEventListener('pointermove', update);
@@ -81,7 +78,7 @@ if (lab) {
     const orbit = lab.querySelector('[data-study="orbit"]');
     const ring = orbit.querySelector('.lab-orbit-ring');
     const ticks = orbit.querySelector('.lab-orbit-ticks');
-    const dialLetters = 'FRMFRMMONO!?';
+    const dialLetters = 'FRMFRMMONO';
     [...dialLetters].forEach((char, index) => {
         const letter = document.createElement('span');
         letter.className = 'lab-orbit-letter';
@@ -95,12 +92,87 @@ if (lab) {
         tick.setAttribute('transform', `rotate(${i * 6} 200 200)`);
         ticks.append(tick);
     }
-    let turns = 0;
-    orbit.addEventListener('click', () => {
-        turns++;
-        orbit.style.setProperty('--dial-angle', `${turns * 90}deg`);
-        orbit.querySelector('.lab-orbit-core').textContent = dialLetters[turns % dialLetters.length];
+    const dialStep = 360 / dialLetters.length;
+    const core = orbit.querySelector('.lab-orbit-core');
+    let dialAngle = 0, dialTarget = 0, dialFrame = 0, dialPrevious = 0;
+    let dialDrag = null, suppressDialClick = false;
+    const drawDial = () => {
+        orbit.style.setProperty('--dial-angle', `${dialAngle}deg`);
+        const index = ((Math.round(-dialAngle / dialStep) % dialLetters.length) + dialLetters.length) % dialLetters.length;
+        core.textContent = dialLetters[index];
+        orbit.setAttribute('aria-label', `Alphabet dial: ${dialLetters[index]}. Click for next letter, or use arrow keys.`);
+    };
+    const animateDial = time => {
+        const elapsed = dialPrevious ? Math.min(time - dialPrevious, 64) : 16.667;
+        dialPrevious = time;
+        dialAngle += (dialTarget - dialAngle) * (1 - Math.exp(-elapsed / 85));
+        if (Math.abs(dialTarget - dialAngle) < .01) dialAngle = dialTarget;
+        drawDial();
+        dialFrame = dialAngle === dialTarget ? 0 : requestAnimationFrame(animateDial);
+        if (!dialFrame) dialPrevious = 0;
+    };
+    const moveDial = target => {
+        dialTarget = target;
+        if (reducedMotion.matches) {
+            cancelAnimationFrame(dialFrame);
+            dialFrame = dialPrevious = 0;
+            dialAngle = target;
+            drawDial();
+        } else if (!dialFrame) dialFrame = requestAnimationFrame(animateDial);
+    };
+    const pointerAngle = event => {
+        const rect = orbit.querySelector('.lab-orbit-stage').getBoundingClientRect();
+        const x = event.clientX - rect.left - rect.width / 2;
+        const y = event.clientY - rect.top - rect.height / 2;
+        return Math.hypot(x, y) < 24 ? null : Math.atan2(y, x) * 180 / Math.PI;
+    };
+    orbit.addEventListener('pointerdown', event => {
+        if (event.button !== 0 || dialDrag) return;
+        suppressDialClick = false;
+        cancelAnimationFrame(dialFrame);
+        dialFrame = dialPrevious = 0;
+        dialTarget = dialAngle;
+        dialDrag = { id: event.pointerId, angle: pointerAngle(event), x: event.clientX, y: event.clientY, moved: false };
+        orbit.setPointerCapture(event.pointerId);
     });
+    orbit.addEventListener('pointermove', event => {
+        if (!dialDrag || event.pointerId !== dialDrag.id) return;
+        const angle = pointerAngle(event);
+        if (!dialDrag.moved && Math.hypot(event.clientX - dialDrag.x, event.clientY - dialDrag.y) > 5) {
+            dialDrag.moved = true;
+            orbit.classList.add('is-dragging');
+        }
+        if (dialDrag.moved && angle !== null && dialDrag.angle !== null) {
+            // Unwrap each movement so crossing ±180° never adds a full turn.
+            dialAngle += ((angle - dialDrag.angle + 540) % 360) - 180;
+            dialTarget = dialAngle;
+            drawDial();
+        }
+        dialDrag.angle = angle;
+    });
+    const releaseDial = event => {
+        if (!dialDrag || (event.pointerId !== undefined && event.pointerId !== dialDrag.id)) return;
+        const { id, moved } = dialDrag;
+        dialDrag = null;
+        suppressDialClick = moved;
+        orbit.classList.remove('is-dragging');
+        if (orbit.hasPointerCapture(id)) orbit.releasePointerCapture(id);
+        moveDial(Math.round(dialAngle / dialStep) * dialStep);
+    };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => orbit.addEventListener(type, releaseDial));
+    window.addEventListener('blur', releaseDial);
+    orbit.addEventListener('click', event => {
+        if (suppressDialClick && event.detail !== 0) { suppressDialClick = false; return; }
+        moveDial((Math.round(dialTarget / dialStep) + 1) * dialStep);
+    });
+    orbit.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
+        event.preventDefault();
+        if (dialDrag) releaseDial({});
+        const direction = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1;
+        moveDial(event.key === 'Home' ? 0 : (Math.round(dialTarget / dialStep) + direction) * dialStep);
+    });
+    drawDial();
 
     const reels = lab.querySelector('[data-study="reels"]');
     const reelWindow = reels.querySelector('.lab-reel-window');
@@ -119,6 +191,7 @@ if (lab) {
         const applyBoardMetadata = () => {
             reels.style.setProperty('--board-columns', columns);
             reels.style.setProperty('--board-rows', rows);
+            reels.style.setProperty('--board-ratio', columns * .78 / rows);
             reels.setAttribute('aria-label', `${scenes[messageIndex]} Split-flap display. Activate for the next composition.`);
         };
         if (boardCache.has(cacheKey)) { targets = boardCache.get(cacheKey); applyBoardMetadata(); return; }
@@ -142,64 +215,65 @@ if (lab) {
             const firstRow = Math.floor((rows - (phrases.length * 2 - 1)) / 2);
             phrases.forEach((phrase, index) => text(phrase, firstRow + index * 2, left));
         } else if (messageIndex === 1) {
-            // Identical rails meet at one exposed orthogonal joint.
-            const cx = Math.floor(columns / 2), cy = 10;
-            const reach = smallBoard.matches ? 8 : 15;
-            line(cx - reach, cy - 1, cx + reach, cy - 1, '-');
-            line(cx - reach, cy + 1, cx + reach, cy + 1, '-');
-            line(cx - 1, 3, cx - 1, 17, '|');
-            line(cx + 1, 3, cx + 1, 17, '|');
-            [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,y]) => put(cx+x,cy+y,'+'));
-            put(cx, cy, '+');
+            // An off-centre solid crossing, cut by one continuous open joint.
+            const joint = Math.floor(columns * .63);
+            for (let y = 1; y < 19; y++) for (let x = 1; x < columns - 1; x++) {
+                const upright = x >= joint - 2 && x <= joint + 2;
+                const beam = y >= 7 && y <= 11;
+                if ((upright || beam) && x !== joint && y !== 9) put(x, y, upright ? 'F' : '=');
+            }
+            put(joint, 9, '+');
             text('ORTHOGONAL', 20);
         } else if (scenes[messageIndex] === 'Aluminum Profile') {
-            // Restore the four-quadrant profile section, sharing the joint study's center and caption baseline.
-            const cx = Math.floor(columns / 2), cy = 10;
+            // A dense fourfold section with open T-slots and a hollow core.
+            const cx = Math.floor(columns / 2), cy = 9;
             for (let y = -8; y <= 8; y++) for (let x = -10; x <= 10; x++) {
                 const ax = Math.abs(x), ay = Math.abs(y);
-                let char = ' ';
-                if ((ay === 8 && ax >= 5) || (ay === 4 && ax >= 5) || (ay === 2 && ax <= 2)) char = '=';
-                if ((ax === 10 && ay >= 4) || (ax === 5 && ay >= 4) || (ax === 2 && ay <= 2)) char = '|';
-                if ((ax === 5 && ay === 4) || (ax === 10 && ay === 8) || (ax === 2 && ay === 2)) char = '+';
-                if (ax >= 3 && ax <= 5 && ay === ax - 1) char = '+';
-                if (char !== ' ') put(cx + x, cy + y, char);
+                const rim = ax >= 8 || ay >= 6;
+                const slot = (ax <= 2 && ay >= 4) || (ay <= 1 && ax >= 5);
+                const brace = Math.abs(ax - ay - 1) <= 1 && ax >= 3 && ax <= 7;
+                const core = ax <= 3 && ay <= 2 && (ax === 3 || ay === 2);
+                if ((rim && !slot) || brace || core) put(cx + x, cy + y, core ? '+' : 'M');
             }
-            put(cx, cy, '+');
             text('Aluminum Profile', 20);
         } else if (scenes[messageIndex] === 'MODULAR') {
-            // Repeated open modules: shared members and visible connection points.
-            const step = smallBoard.matches ? 5 : 9;
-            const left = Math.floor((columns - step * 4 - 1) / 2);
-            for (let row = 0; row <= 4; row++) line(left, 2 + row * 4, left + step * 4, 2 + row * 4, '-');
-            for (let col = 0; col <= 4; col++) line(left + col * step, 2, left + col * step, 18, '|');
-            for (let row = 0; row <= 4; row++) for (let col = 0; col <= 4; col++) put(left + col * step, 2 + row * 4, '+');
+            // A field of identical units with a deliberate, quiet missing bay.
+            const unit = smallBoard.matches ? 6 : 8;
+            for (let y = 1; y < 18; y++) for (let x = 0; x < columns; x++) {
+                const u = x % unit, v = (y - 1) % 6;
+                const missing = Math.floor(x / unit) === Math.floor(columns / unit) - 2 && y >= 7 && y < 13;
+                if (!missing && u < unit - 1 && v < 5) {
+                    const edge = u === 0 || u === unit - 2 || v === 0 || v === 4;
+                    if (edge) put(x, y, (u === 0 || u === unit - 2) && (v === 0 || v === 4) ? '+' : 'F');
+                }
+            }
             text('MODULAR', 20);
         } else if (scenes[messageIndex] === 'STRUCTURAL') {
-            // A continuous beam, uprights and lower ties expose the supporting frame.
-            const cx = Math.floor(columns / 2);
-            const half = smallBoard.matches ? 9 : 17;
-            const left = cx - half, right = cx + half;
+            // Sparse portal frames: long spans, deep negative space, shared datum.
+            const left = 3, right = columns - 4;
+            const middle = Math.floor(columns * .58);
             line(left, 4, right, 4, '=');
-            line(left, 6, right, 6, '-');
-            [left, cx, right].forEach(x => {
+            line(left, 5, right, 5, '-');
+            [left, middle, right].forEach(x => {
                 line(x, 4, x, 17, '|');
-                [4, 6, 15, 17].forEach(y => put(x, y, '+'));
+                line(x - 1, 18, x + 1, 18, '=');
+                put(x, 4, '+');
+                put(x, 5, '+');
             });
-            line(left, 15, right, 15, '-');
-            line(left - 1, 17, right + 1, 17, '=');
-            [left, cx, right].forEach(x => put(x, 15, '+'));
+            line(left, 14, right, 14, '-');
+            [left, middle, right].forEach(x => put(x, 14, '+'));
             text('STRUCTURAL', 20);
         } else if (scenes[messageIndex] === 'STANDARDIZED') {
-            // Identical members share a length, section and connection spacing.
-            const cx = Math.floor(columns / 2);
-            const half = smallBoard.matches ? 8 : 15;
-            [3, 9, 15].forEach(top => {
-                line(cx - half, top, cx + half, top, '-');
-                line(cx - half, top + 2, cx + half, top + 2, '-');
-                [cx - half, cx + half].forEach(x => {
-                    put(x, top, '+'); put(x, top + 1, '|'); put(x, top + 2, '+');
-                });
-                [cx - half + 3, cx, cx + half - 3].forEach(x => put(x, top + 1, '+'));
+            // Equal-length members form a measured cadence of solids and gaps.
+            const left = smallBoard.matches ? 3 : 7;
+            const right = columns - left - 1;
+            [3, 8, 13].forEach(top => {
+                for (let x = left; x <= right; x++) {
+                    put(x, top, 'R');
+                    put(x, top + 1, '=');
+                }
+                put(left, top + 3, '+');
+                put(right, top + 3, '+');
             });
             text('STANDARDIZED', 20);
         } else if (scenes[messageIndex] === 'FRMFRM') {
@@ -223,7 +297,8 @@ if (lab) {
             if (smallBoard.matches) {
                 drawWord('FRM', 2, 1);
                 drawWord('FRM', 12, 1);
-            } else drawWord('FRMFRM', 7, 1);
+            } else drawWord('FRMFRM', 3, 2);
+            text('FRMFRM MONO', 20);
         }
         targets = grid.flat();
         boardCache.set(cacheKey, targets);
@@ -340,16 +415,20 @@ if (lab) {
         panel.addEventListener('pointerleave', () => { cancelAnimationFrame(frame); render(0, 0); });
     }
     const projection = lab.querySelector('[data-study="projection"]');
-    let projectionPhase = 0;
-    function renderProjection(x = 0, y = 0) {
+    let projectionStage = 0, projectionX = 0, projectionY = 0;
+    const projectionChoices = [...projection.querySelectorAll('[data-projection-stage]')];
+    const projectionLabels = [...projection.querySelectorAll('.lab-projection-labels text')];
+    function renderProjection(x = projectionX, y = projectionY) {
+        projectionX = x;
+        projectionY = y;
         const forms = projection.querySelector('[data-projection-forms]');
         const fragment = document.createDocumentFragment();
         [ [155, 28], [285, 52], [455, 92] ].forEach(([cx, baseRadius], index) => {
             const radius = baseRadius * (1 + x * .12);
             const group = svgNode('g', { transform: `translate(${cx} 200)` });
-            const fill = ['#fff', '#aaa', '#f9f9f9'][(index + projectionPhase) % 3];
+            const fill = index === projectionStage ? '#aaa' : '#f9f9f9';
             group.append(svgNode('circle', { r: radius, fill, stroke: '#111', 'stroke-width': .8 }));
-            if (index === 2 || projectionPhase === 2) {
+            if (index === 2) {
                 group.append(svgNode('ellipse', { rx: radius * (.22 + Math.abs(x) * .3), ry: radius, fill: 'none', stroke: '#555', 'stroke-width': .8, transform: `rotate(${y * 30})` }));
                 group.append(svgNode('ellipse', { rx: radius, ry: radius * (.26 + Math.abs(y) * .3), fill: 'none', stroke: '#555', 'stroke-width': .8 }));
             }
@@ -359,7 +438,23 @@ if (lab) {
         });
         forms.replaceChildren(fragment);
     }
-    projection.addEventListener('click', () => { projectionPhase = (projectionPhase + 1) % 3; renderProjection(); });
+    const selectProjectionStage = index => {
+        projectionStage = index;
+        projectionChoices.forEach((choice, i) => choice.setAttribute('aria-pressed', String(i === index)));
+        projectionLabels.forEach((label, i) => label.classList.toggle('is-selected', i === index));
+        renderProjection();
+    };
+    projectionChoices.forEach((choice, index) => {
+        choice.addEventListener('click', () => selectProjectionStage(index));
+        choice.addEventListener('keydown', event => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const next = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : (index + (event.key === 'ArrowRight' ? 1 : 2)) % 3;
+            projectionChoices[next].focus();
+            selectProjectionStage(next);
+        });
+    });
+    selectProjectionStage(0);
     graphicPointer(projection, renderProjection);
     renderProjection();
 

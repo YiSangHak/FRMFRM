@@ -55,7 +55,7 @@ function initSmoothScroll() {
         const elapsed = Math.min(time - lastTime, 64);
         lastTime = time;
         target = Math.max(0, Math.min(target, maximum()));
-        const next = window.scrollY + (target - window.scrollY) * (1 - Math.exp(-elapsed / 160));
+        const next = window.scrollY + (target - window.scrollY) * (1 - Math.exp(-elapsed / 55));
         window.scrollTo({ top: Math.abs(target - next) < 1 ? target : next, behavior: 'instant' });
         if (Math.abs(target - window.scrollY) < 1) {
             frame = 0;
@@ -79,7 +79,8 @@ function initSmoothScroll() {
             }
         }
         const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
-        if (!frame) target = window.scrollY;
+        // Discard the old destination immediately when the user reverses direction.
+        if (!frame || delta * (target - window.scrollY) < 0) target = window.scrollY;
         target = Math.max(0, Math.min(target + delta, maximum()));
         if (target === window.scrollY && !frame) return;
         event.preventDefault();

@@ -89,7 +89,7 @@
                     </svg>
                     <span class="lab-caption lab-bottom"><span>70:100 / 10 UNIT GRID</span><span data-construction-char>M</span></span>
                 </button>
-                <button class="lab-panel lab-orbit" data-study="orbit" aria-label="Turn the alphabet dial clockwise">
+                <button class="lab-panel lab-orbit" data-study="orbit" aria-label="Alphabet dial. Drag to rotate, or click for next letter.">
                     <span class="lab-orbit-stage" aria-hidden="true">
                         <svg viewBox="0 0 400 400"><circle cx="200" cy="200" r="152"/><circle cx="200" cy="200" r="112"/><path d="M22 200H378M200 22V378"/><g class="lab-orbit-ticks"></g></svg>
                         <span class="lab-orbit-ring"></span><span class="lab-orbit-core">F</span>
@@ -105,13 +105,16 @@
                     <svg viewBox="0 0 600 440" aria-hidden="true"><g data-comparison-drawing></g></svg>
                     <span class="lab-caption lab-bottom"><span>F / 70:100</span><span>CHAIR 01 / 400 × 400 × 600 MM</span></span>
                 </button>
-                <button class="lab-panel lab-projection" data-study="projection" aria-label="Furniture to structure to type. Move to adjust the wireframe; activate to change the geometric projection.">
+                <div class="lab-panel lab-projection" data-study="projection" role="group" aria-label="Furniture to structure to type. Select a stage; move to adjust the wireframe.">
                     <svg viewBox="0 0 600 400" aria-hidden="true">
                         <path d="M40 200L560 55M40 200L560 345M40 200H560" class="lab-projection-rays"/>
                         <g data-projection-forms></g>
                         <g class="lab-projection-labels"><text x="155" y="256">FURNITURE</text><text x="285" y="290">STRUCTURE</text><text x="455" y="340">TYPE</text></g>
                     </svg>
-                </button>
+                    <button type="button" class="lab-projection-choice" data-projection-stage="0" aria-label="Furniture" aria-pressed="true"></button>
+                    <button type="button" class="lab-projection-choice" data-projection-stage="1" aria-label="Structure" aria-pressed="false"></button>
+                    <button type="button" class="lab-projection-choice" data-projection-stage="2" aria-label="Type" aria-pressed="false"></button>
+                </div>
             </div>
         </section>
 
