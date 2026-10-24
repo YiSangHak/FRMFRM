@@ -2328,3 +2328,39 @@ html { -webkit-tap-highlight-color: transparent; }
     .site-header .site-nav { grid-column: 1 / -1; grid-row: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; flex-wrap: nowrap; gap: 8px; width: 100%; margin-top: 32px; font-family: var(--font-en); font-size: 11px; line-height: 16px; font-weight: 400; letter-spacing: -.03em; }
     .site-header .site-nav[hidden] { display: none; }
 }
+
+/* Isometric study: inspect STEP components and surfaces in model millimetres. */
+.product-drawing { color: var(--color-text); min-width: 0; padding: 24px 0; }
+.product-drawing > .section-label { margin-bottom: 24px; }
+.product-drawing-stage { position: relative; padding: 24px; background: white; }
+.product-drawing-stage > svg { display: block; width: 100%; height: auto; max-height: 72svh; overflow: visible; touch-action: pan-y; }
+@media (max-width: 767px) { .product-drawing-stage { padding: 16px; } }
+
+.furniture-model-part > path:first-child { pointer-events: none; }
+.furniture-part-hit { cursor: crosshair; touch-action: none; pointer-events: stroke; }
+.has-selection .furniture-model-part:not(.is-active) > path:first-child { opacity: .25; }
+.furniture-model-part.is-active > path:first-child { stroke-width: 1.2; }
+.product-drawing-tooltip { position: fixed; z-index: 40; max-width: calc(100vw - 16px); padding: 8px; color: #111; background: rgba(255,255,255,.96); font: 10px/16px "Geist", Arial, sans-serif; font-variant-numeric: tabular-nums; white-space: pre-line; pointer-events: none; }
+.product-drawing-tooltip[hidden] { display: none; }
+
+.furniture-part-surface { touch-action: none; cursor: crosshair; pointer-events: fill; }
+.furniture-part-surface.is-active { fill: #e8e8e8; }
+
+/* Mobile reading and navigation share the body size. */
+@media (max-width: 767px) {
+    .site-header .site-nav,
+    .site-footer .footer-logo,
+    .site-footer .footer-nav,
+    .site-footer .footer-nav a,
+    .site-footer .footer-copyright {
+        font-family: var(--font-en);
+        font-size: var(--font-body-en);
+        font-weight: 400;
+        line-height: 20px;
+    }
+    .site-footer .footer-nav { gap: 8px; }
+}
+
+@media (max-width: 767px) {
+    :root { --section-title-size: 14px; }
+}
