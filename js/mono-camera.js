@@ -1,8 +1,10 @@
 // Local-only camera mirror. No image data leaves the browser.
 (() => {
-    const board = document.querySelector('.home-camera-board');
+    const board = document.querySelector('.mono-camera-board');
     if (!board) return;
-    const status = document.querySelector('.home-camera-status');
+    const status = document.querySelector('.mono-camera-status');
+    const panel = document.querySelector('.mono-camera');
+    const graphic = document.querySelector('[data-study="reels"]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const mobile = matchMedia('(max-width: 767px)');
     const video = document.createElement('video');
@@ -71,7 +73,13 @@
         }
         timer = setTimeout(tick, 100);
     }
+    function showGraphic() {
+        panel.hidden = true;
+        graphic.hidden = false;
+    }
     async function start() {
+        panel.hidden = false;
+        graphic.hidden = true;
         stopped = false;
         const current = ++request;
         status.textContent = 'FRMFRM MONO / 카메라를 허용하면 문자 거울이 시작됩니다';
@@ -85,13 +93,13 @@
             if (current !== request) return;
             status.textContent = 'FRMFRM MONO / LIVE — 영상은 저장·전송되지 않습니다';
             media.getVideoTracks().forEach(track => track.addEventListener('ended', () => {
-                stop(); fallback(); status.textContent = 'FRMFRM MONO / CAMERA UNAVAILABLE';
+                stop(); showGraphic(); status.textContent = 'FRMFRM MONO / CAMERA UNAVAILABLE';
             }));
             levels = [];
             tick();
         } catch {
             if (current !== request) return;
-            stop(); fallback();
+            stop(); showGraphic();
             status.textContent = 'FRMFRM MONO / 카메라 연결 또는 브라우저 권한을 확인해주세요';
         }
     }

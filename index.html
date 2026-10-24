@@ -49,11 +49,24 @@
     <!-- ==================================================
        HOME
        ================================================== -->
-    <main class="home-camera-main">
-        <section class="home-camera" aria-label="FRMFRM MONO live character mirror">
-            <div class="lab-reel-window home-camera-board" aria-hidden="true"></div>
-            <p class="home-camera-status" role="status">FRMFRM MONO / CAMERA</p>
+    <main class="home-main">
+        <div class="home-title cross-target">
+            <h1>
+                STUDIO<br>
+                FRMFRM™
+            </h1>
+        </div>
+
+        <!--
+      3D VIEWER
+
+      cube_profile.glb is loaded by home-3d.js.
+      Three.js canvas will be inserted into this container.
+    -->
+        <section class="home-model cross-target" id="home-model" aria-label="Interactive FRMFRM 3D model">
+            <div class="model-viewer" id="model-viewer"></div>
         </section>
+
     </main>
 
     <section class="home-about" aria-labelledby="home-about-heading">
@@ -91,7 +104,19 @@
     <script src="./js/main.js?v=idle-home-03"></script>
 
 
-    <script src="./js/home-camera.js"></script>
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+}
+</script>
+
+
+    <!-- HOME 3D only -->
+    <script type="module" src="./js/home-3d.js?v=aluminum-01"></script>
 
 </body>
 

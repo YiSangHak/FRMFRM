@@ -2203,10 +2203,11 @@ html { -webkit-tap-highlight-color: transparent; }
 }
 
 /* Home character mirror: full-width, viewport-height board. */
-.home-camera-main { padding: 0 var(--page-padding) 24px; }
-.home-camera { position: relative; background: #111; overflow: hidden; }
-.home-camera-board { --board-columns: 64; --board-rows: 32; width: 100%; height: max(240px, calc(100svh - var(--header-height) - 48px)); max-height: none; aspect-ratio: auto; }
-.home-camera-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.mono-camera { grid-column: 1 / -1; position: relative; background: #111; overflow: hidden; }
+.mono-camera-board { --board-columns: 64; --board-rows: 32; width: 100%; height: max(240px, calc(100svh - var(--header-height) - 48px)); max-height: none; aspect-ratio: auto; }
+.mono-camera-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .lab-flap.is-camera-flipping:not(.is-flipping) > span { animation: lab-camera-flip 90ms ease-out; }
 @keyframes lab-camera-flip { from { transform: rotateX(-65deg); } to { transform: rotateX(0); } }
 @media (prefers-reduced-motion: reduce) { .lab-flap.is-camera-flipping > span { animation: none; } }
+
+.mono-camera[hidden], .lab-reels[hidden] { display: none; }
