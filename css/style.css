@@ -709,10 +709,10 @@ textarea {
    Materials
 */
 .product-spec-group dt {
-    font-family: "Geist", var(--font-sans);
+    font-family: var(--font-en);
 
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
 
     line-height: 1.5;
     letter-spacing: -0.03em;
@@ -2257,11 +2257,11 @@ html { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 767px) {
     :root {
         --section-title-font: "Geist", var(--font-sans);
-        --section-title-weight: 600;
+        --section-title-weight: 400;
     }
     .text-ko, .text-en,
     .product-description .text-ko, .product-description .text-en { line-height: 24px; }
-    .page-about .logic-item h2 { font-family: "Geist", var(--font-sans); font-weight: 600; }
+    .page-about .logic-item h2 { font-family: "Geist", var(--font-sans); font-weight: 400; }
 }
 
 .page-typeface .typeface-info { padding-bottom: var(--section-space); }
