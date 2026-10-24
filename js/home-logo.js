@@ -4,7 +4,7 @@
         const mobileLogo = svg.classList.contains('home-logo-mobile');
         const ns = 'http://www.w3.org/2000/svg';
         const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-        const visibleStroke = .5;
+        const visibleStroke = .8;
         const make = (tag, attributes = {}) => {
             const node = document.createElementNS(ns, tag);
             Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
@@ -102,7 +102,7 @@
             const key = `${x},${y}`;
             if (seen.has(key)) return;
             seen.add(key);
-            const point = make('rect');
+            const point = make('rect', { 'vector-effect': 'non-scaling-stroke' });
             anchors.append(point);
             points.push({point,x,y});
         }));
@@ -111,9 +111,14 @@
             const width = svg.getBoundingClientRect().width;
             if (!width) return;
             const scale = width / svg.viewBox.baseVal.width;
+            constructions.forEach(({ path }) => {
+                // Dash lengths and offsets remain in the same SVG coordinate system.
+                path.style.vectorEffect = 'none';
+                path.style.strokeWidth = String(visibleStroke * 2 / scale);
+            });
             const size = mobileLogo ? Math.max(2.2, 4 / scale) : 2.2;
             svg.dataset.anchorSize = String(size * scale);
-            svg.dataset.anchorStroke = String(visibleStroke * scale);
+            svg.dataset.anchorStroke = String(visibleStroke);
             points.forEach(({ point, x, y }) => {
                 point.setAttribute('x', x-size/2); point.setAttribute('y', y-size/2);
                 point.setAttribute('width', size); point.setAttribute('height', size);
@@ -158,7 +163,7 @@
             constructions.forEach(({path,fill,mask,strokes}) => {
                 fill.setAttribute('mask',`url(#${mask.id})`);
                 path.style.fillOpacity='0'; path.style.stroke='currentColor';
-                path.style.strokeWidth=String(visibleStroke*2); path.style.strokeOpacity='0';
+                path.style.strokeOpacity='0';
                 const length=path.getTotalLength();
                 path.style.strokeDasharray=`${length} ${length}`;
                 path.style.strokeDashoffset=String(length);

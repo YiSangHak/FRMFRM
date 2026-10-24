@@ -121,6 +121,7 @@
         graphic.hidden = false;
     }
     async function start() {
+        if (mobile.matches) { stop(); showGraphic(); return; }
         panel.hidden = false;
         graphic.hidden = true;
         stopped = false;
@@ -175,10 +176,22 @@
     });
     const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; });
     observer.observe(board);
-    mobile.addEventListener('change', build);
+    let paletteReady = false;
+    function syncMode() {
+        stop();
+        if (mobile.matches) {
+            showGraphic();
+            return;
+        }
+        build();
+        if (!paletteReady) {
+            paletteReady = true;
+            preparePalette().catch(() => { paletteReady = false; });
+        }
+        start();
+    }
+    mobile.addEventListener('change', syncMode);
     window.addEventListener('pagehide', stop);
-    window.addEventListener('pageshow', event => { if (event.persisted) start(); });
-    build();
-    preparePalette().catch(() => {});
-    start();
+    window.addEventListener('pageshow', event => { if (event.persisted) syncMode(); });
+    syncMode();
 })();

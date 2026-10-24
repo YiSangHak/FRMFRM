@@ -29,7 +29,9 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
         label.className = 'logo-coordinate-label';
         return label;
     });
-    hud.append(drawing, ...labels);
+    const anchorLabels = document.createElement('div');
+    hud.append(drawing, anchorLabels, ...labels);
+    labels[0].style.display = labels[1].style.display = 'none';
     document.body.append(hud);
     let active = null;
     let pointer = null;
@@ -62,9 +64,6 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
             const screenPoint = new DOMPoint(retainedTouch.x, retainedTouch.y).matrixTransform(matrix);
             pointer = { x: screenPoint.x, y: screenPoint.y };
         }
-        const localBox = active.getBBox();
-        const origin = new DOMPoint(localBox.x, localBox.y).matrixTransform(transform).matrixTransform(matrix.inverse());
-        const corner = new DOMPoint(localBox.x + localBox.width, localBox.y + localBox.height).matrixTransform(transform).matrixTransform(matrix.inverse());
         const { left: x, top: y, right, bottom, width, height } = box;
         // No viewBox: overlay units are CSS pixels, just like getScreenCTM().
         // innerWidth includes the scrollbar; using it as a viewBox rescales and
@@ -76,17 +75,48 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
         const homeLogo = svg.classList.contains('home-logo-assembly');
         const anchorSize = homeLogo ? Number(svg.dataset.anchorSize) || 5 : 5;
         const cornerSize = homeLogo ? anchorSize : 6;
-        const anchorStyle = homeLogo ? `stroke-width: ${Number(svg.dataset.anchorStroke) || .8}px` : '';
+        const anchorStyle = 'stroke-width: .8px';
+        const annotatedPoints = [];
+        const seenPoints = new Set();
+        const rememberPoint = (screenX, screenY) => {
+            const local = new DOMPoint(screenX, screenY).matrixTransform(matrix.inverse());
+            const text = `(${Number(local.x.toFixed(2))}, ${Number(local.y.toFixed(2))})`;
+            if (!seenPoints.has(text)) { seenPoints.add(text); annotatedPoints.push({ x: screenX, y: screenY, text }); }
+        };
         active.dataset.points.split(' ').forEach(pair => {
             const [px, py] = pair.split(',').map(Number);
             const point = new DOMPoint(px, py).matrixTransform(transform);
+            rememberPoint(point.x, point.y);
             create('rect', { x: point.x - anchorSize / 2, y: point.y - anchorSize / 2, width: anchorSize, height: anchorSize, class: 'logo-anchor', style: anchorStyle });
         });
         [[x,y], [right,y], [x,bottom], [right,bottom]].forEach(([px,py]) => {
+            rememberPoint(px, py);
             create('rect', { x: px - cornerSize / 2, y: py - cornerSize / 2, width: cornerSize, height: cornerSize, class: 'logo-anchor', style: anchorStyle });
         });
-        labelAt(labels[0], `(${Number(origin.x.toFixed(2))}, ${Number(origin.y.toFixed(2))})`, x, y - 23);
-        labelAt(labels[1], `(${Number(corner.x.toFixed(2))}, ${Number(corner.y.toFixed(2))})`, right + 9, bottom + 7);
+        anchorLabels.replaceChildren();
+        const occupied = [];
+        annotatedPoints.forEach(point => {
+            const label = document.createElement('span');
+            label.className = 'logo-coordinate-label';
+            label.textContent = point.text;
+            anchorLabels.append(label);
+            const w = label.offsetWidth, h = label.offsetHeight || 17;
+            const candidates = [];
+            for (let row = 0; row < 8; row++) {
+                for (const left of [point.x + 8, point.x - w - 8]) {
+                    candidates.push([left, point.y - h - 5 - row * (h + 2)], [left, point.y + 5 + row * (h + 2)]);
+                }
+            }
+            const fit = candidates.map(([left, top]) => [Math.max(8, Math.min(left, innerWidth-w-8)), Math.max(8, Math.min(top, innerHeight-h-8))]);
+            const position = fit.find(([left, top]) => !occupied.some(box => left < box.right && left+w > box.left && top < box.bottom && top+h > box.top)) || fit[0];
+            const [left, top] = position;
+            label.style.left = `${left}px`;
+            label.style.top = `${top}px`;
+            occupied.push({left:left-2,top:top-2,right:left+w+2,bottom:top+h+2});
+            if (Math.hypot(left-point.x, top-point.y) > 40) {
+                create('line', { x1: point.x, y1: point.y, x2: left + (left < point.x ? w : 0), y2: top+h/2, class: 'logo-guide' });
+            }
+        });
         marker.style.display = pointer ? '' : 'none';
         labels[2].style.display = pointer ? '' : 'none';
         if (pointer) {
