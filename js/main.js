@@ -15,16 +15,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     initSmoothScroll();
     initIdleHomeReturn();
-    const profileButton = document.querySelector('.header-profile');
-    if (profileButton) {
-        let profileRotation = 0;
-        profileButton.addEventListener('click', () => {
-            profileRotation += 90;
-            profileButton.style.setProperty('--profile-rotation', `${profileRotation}deg`);
-            const filled = profileButton.getAttribute('aria-pressed') !== 'true';
-            profileButton.setAttribute('aria-pressed', String(filled));
-        });
-    }
+    initProfileNavigation();
 
 
     // Keep the editable specimen and size control in sync.
@@ -39,6 +30,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+// The same profile mark controls the mobile menu and its filled state.
+function initProfileNavigation() {
+    const header = document.querySelector('.site-header');
+    const button = header?.querySelector('.header-profile');
+    const navigation = header?.querySelector('.site-nav');
+    if (!button || !navigation) return;
+    const mobile = matchMedia('(max-width: 767px)');
+    let rotation = 0;
+    const setOpen = open => {
+        header.classList.toggle('is-menu-open', open);
+        navigation.hidden = !open;
+        button.setAttribute('aria-expanded', String(open));
+        button.setAttribute('aria-pressed', String(open));
+        button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    };
+    const syncMode = () => {
+        setOpen(false);
+        if (mobile.matches) button.setAttribute('aria-controls', navigation.id);
+        else {
+            navigation.hidden = false;
+            button.removeAttribute('aria-expanded');
+            button.removeAttribute('aria-controls');
+            button.setAttribute('aria-label', '프로파일 단면 채우기 전환');
+        }
+    };
+    button.addEventListener('click', event => {
+        rotation += 90;
+        button.style.setProperty('--profile-rotation', `${rotation}deg`);
+        if (mobile.matches) {
+            const open = button.getAttribute('aria-expanded') !== 'true';
+            setOpen(open);
+            if (open && event.detail === 0) navigation.querySelector('a')?.focus();
+        } else button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+    });
+    navigation.addEventListener('click', event => {
+        if (mobile.matches && event.target.closest('a')) setOpen(false);
+    });
+    header.addEventListener('keydown', event => {
+        if (mobile.matches && event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+            setOpen(false); button.focus();
+        }
+    });
+    header.addEventListener('focusout', event => {
+        if (mobile.matches && event.relatedTarget && !header.contains(event.relatedTarget)) setOpen(false);
+    });
+    document.addEventListener('click', event => {
+        if (mobile.matches && !header.contains(event.target)) setOpen(false);
+    });
+    window.addEventListener('pageshow', event => { if (event.persisted) syncMode(); });
+    mobile.addEventListener('change', syncMode);
+    syncMode();
+}
 
 // Return unattended exhibition pages to the live home screen.
 function initIdleHomeReturn() {
