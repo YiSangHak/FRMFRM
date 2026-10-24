@@ -14,6 +14,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     initSmoothScroll();
+    initIdleHomeReturn();
     const profileButton = document.querySelector('.header-profile');
     if (profileButton) {
         let profileRotation = 0;
@@ -38,6 +39,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+// Return unattended exhibition pages to the live home screen.
+function initIdleHomeReturn() {
+    if (document.body.classList.contains('page-home')) return;
+    const idleLimit = 60_000;
+    let lastInput = Date.now();
+    let timer = 0;
+    const check = () => {
+        clearTimeout(timer);
+        const remaining = idleLimit - (Date.now() - lastInput);
+        if (remaining <= 0) {
+            window.location.replace(new URL('./index.html', window.location.href).href);
+            return;
+        }
+        timer = setTimeout(check, remaining);
+    };
+    const recordInput = event => {
+        if (event.isTrusted) lastInput = Date.now();
+    };
+    // Wheel input counts directly; animated scrolling never resets the timer.
+    ['pointermove', 'pointerdown', 'pointerup', 'keydown', 'keyup', 'wheel', 'touchstart', 'touchmove', 'input', 'click']
+        .forEach(type => window.addEventListener(type, recordInput, { passive: true, capture: true }));
+    window.addEventListener('pagehide', () => clearTimeout(timer));
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) { lastInput = Date.now(); check(); }
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) check();
+    });
+    check();
+}
 
 // Ease wheel and trackpad input without changing the document's native layout.
 function initSmoothScroll() {
