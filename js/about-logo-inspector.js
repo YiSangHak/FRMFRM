@@ -1,6 +1,18 @@
 document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(host => {
     const svg = host.matches('.home-logo-assembly') ? host : host.querySelector('.about-inspector-svg');
     const glyphs = [...host.querySelectorAll('.logo-glyph')];
+    const hitShapes = glyphs.map(glyph => ({ glyph, shape: glyph.querySelector('.home-logo-fill') || glyph.querySelector('path') }));
+    const glyphAt = (clientX, clientY) => {
+        for (const { glyph, shape } of hitShapes) {
+            if (!shape) continue;
+            const matrix = shape.getScreenCTM();
+            if (!matrix) continue;
+            const point = new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse());
+            // Test filled geometry even while the visible glyph is an outline.
+            if (shape.isPointInFill(point)) return glyph;
+        }
+        return null;
+    };
     const ns = 'http://www.w3.org/2000/svg';
     // Draw in screen pixels so handles and labels keep their size at every breakpoint.
     const hud = document.createElement('div');
@@ -106,7 +118,7 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
     };
     glyphs.forEach(glyph => {
         glyph.addEventListener('focus', () => {
-            if (retainedTouch) return;
+            if (retainedTouch || !glyph.matches(':focus-visible')) return;
             pointer = null; show(glyph);
         });
     });
@@ -120,13 +132,9 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
                 retainedTouch = { x: point.x, y: point.y };
             }
         } else retainedTouch = null;
-        // Bounds include counters, even when the selected glyph is only an outline.
-        const glyph = glyphs.find(item => {
-            const box = item.getBoundingClientRect();
-            return pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
-        });
+        const glyph = glyphAt(event.clientX, event.clientY);
         if (glyph) show(glyph);
-        else if (active) schedule();
+        else clear();
     };
     svg.addEventListener('pointermove', event => {
         const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
@@ -138,7 +146,7 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
         const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
         if (touch) {
             // Only gestures that begin on an actual glyph face belong to the inspector.
-            if (!event.target.closest('.logo-glyph') || touchPointerId !== null) return;
+            if (!glyphAt(event.clientX, event.clientY) || touchPointerId !== null) return;
             touchPointerId = event.pointerId;
             svg.setPointerCapture(event.pointerId);
         }

@@ -61,6 +61,7 @@
                 { d: 'M60 0V100', width: 20, start: 600, duration: 500 }
             ]
         ];
+        const strokeDrawDuration = 800;
         const constructions = paths.map((path, index) => {
             const vertices = outlineVertices(path.getAttribute('d'));
             const left = Math.min(...vertices.map(([x]) => x));
@@ -75,9 +76,8 @@
             mask.style.maskType = 'luminance';
             const group = make('g', { transform: `translate(${left} ${top})`, fill: 'none', stroke: 'white', 'stroke-linecap': 'butt', 'stroke-linejoin': 'miter' });
             const letterPlan = plans[index % 3];
-            const commonEnd = Math.max(...plans.flat().map(plan => plan.start + plan.duration));
             const letterEnd = Math.max(...letterPlan.map(plan => plan.start + plan.duration));
-            const timeScale = commonEnd / letterEnd;
+            const timeScale = strokeDrawDuration / letterEnd;
             const strokes = letterPlan.map(plan => {
                 const node = make('path', { d: plan.d, 'stroke-width': plan.width });
                 group.append(node);
@@ -142,7 +142,7 @@
             const earliest = Math.min(...revealTimes), latest = Math.max(...revealTimes);
             const outlineStart = latest+500, outlineEnd = outlineStart+1200;
             const drawStart = outlineEnd+500;
-            const drawDuration = Math.max(...plans.flat().map(plan=>plan.start+plan.duration));
+            const drawDuration = strokeDrawDuration;
             const exitStart = drawStart+drawDuration+600;
             const total = exitStart+latest-earliest+1;
             anchors.style.opacity = '1';
