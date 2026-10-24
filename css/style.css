@@ -1970,17 +1970,6 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
     .home-about-copy { grid-column: 1 / -1; }
 }
 
-/* Mobile section headings use Geist SemiBold; product names stay Regular. */
-@media (max-width: 767px) {
-    body:not(.page-about) .home-about h2,
-    body:not(.page-about) .typeface-info-heading h2,
-    body:not(.page-about) .section-label,
-    body:not(.page-about) .glyph-picker-heading h2 {
-        font-family: "Geist", var(--font-sans);
-        font-weight: 600;
-    }
-}
-
 /* Structural principle titles use the original body typeface. */
 .page-about .logic-item h2 {
     font-family: var(--font-sans);
@@ -2049,9 +2038,9 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 
 
 /* Interactive specimen studies: technical diagrams meet large-scale type. */
-.mono-lab { margin: 40px var(--page-padding) 80px; }
-.mono-lab-header { display: flex; justify-content: space-between; gap: 20px; padding: 16px 0; border-top: var(--rule); }
-.mono-lab-header h2 { font-size: 14px; font-weight: 400; }
+.mono-lab { margin: 40px var(--page-padding) var(--section-space); }
+.mono-lab-header { display: flex; justify-content: space-between; gap: 20px; padding: 10px 0; border-bottom: var(--rule); margin-bottom: 40px; }
+.mono-lab-header h2 { font-family: var(--font-en); font-size: 13px; line-height: 20px; letter-spacing: -.03em; font-weight: 400; }
 .mono-lab-header > span, .mono-lab-note { font-size: 11px; }
 .mono-lab-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
 .lab-panel { --mx: 0; --my: 0; position: relative; display: block; width: 100%; min-width: 0; padding: 0; overflow: hidden; border: 1px solid #000; border-radius: 0; color: #000; background: #fff; font: inherit; text-align: left; cursor: pointer; touch-action: pan-y; }
@@ -2084,7 +2073,7 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .mono-lab-note { display: flex; gap: 16px; margin-top: 16px; }
 .mono-lab-note [lang="ko"] { color: #777; }
 @media (max-width: 767px) {
-    .mono-lab { margin-top: 24px; margin-bottom: 48px; }
+    .mono-lab { margin-top: 24px; margin-bottom: var(--section-space); }
     .mono-lab-header > span { display: none; }
     .mono-lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .lab-echo { grid-column: span 2; }
@@ -2146,7 +2135,8 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 
 /* Vector inspection on the About wordmark. */
 .about-title .about-logo-inspector { position: relative; width: 100%; line-height: 0; }
-.about-inspector-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.about-inspector-svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: auto; -webkit-user-select: none; user-select: none; }
+.about-inspector-svg .logo-glyph path { touch-action: none; pointer-events: fill; }
 .logo-glyph { fill: currentColor; cursor: crosshair; outline: none; }
 .logo-glyph.is-active { fill: transparent; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .logo-inspector-hud { position: fixed; inset: 0; z-index: 30; pointer-events: none; visibility: hidden; color: var(--color-text, #111); }
@@ -2160,7 +2150,8 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 
 .logo-pointer-guide { stroke-opacity: .45; stroke-dasharray: 2 4; }
 
-.home-about-copy sup {
+.home-about-copy sup,
+.home-foundation-copy sup {
     position: relative;
     top: -.45em;
     margin-left: .25em;
@@ -2211,3 +2202,116 @@ html { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .lab-flap.is-camera-flipping > span { animation: none; } }
 
 .mono-camera[hidden], .lab-reels[hidden] { display: none; }
+
+/* The furniture frame is explained alongside the interactive model. */
+.about-frame { display: grid; grid-template-columns: var(--grid-columns); column-gap: var(--column-gap); align-items: center; margin: 0 var(--page-padding) var(--section-space); }
+.about-frame-visual { grid-column: 1 / 7; min-width: 0; width: 100%; aspect-ratio: 1; }
+.about-frame-copy { grid-column: 7 / 13; display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+/* Section rules belong to headings; item rules belong to rows/cards.
+   Header and footer rules mark the outer page navigation boundaries. */
+.about-frame-heading { grid-column: 1 / -1; width: 100%; }
+@media (max-width: 767px) {
+    .about-frame-visual { margin-bottom: 32px; }
+    .about-frame-visual, .about-frame-copy { grid-column: 1 / -1; }
+}
+
+/* Shared editorial foundations: section labels, copy widths and spacing. */
+:root {
+    --section-title-size: 13px;
+    --section-title-leading: 20px;
+    --section-title-weight: 400;
+    --section-title-font: var(--font-en);
+    --section-space: 80px;
+}
+/* Stepped fallback also keeps section spacing on the 4px grid. */
+@media (min-width: 880px) { :root { --section-space: 96px; } }
+@media (min-width: 1040px) { :root { --section-space: 112px; } }
+@media (min-width: 1200px) { :root { --section-space: 128px; } }
+@media (min-width: 1360px) { :root { --section-space: 144px; } }
+@media (min-width: 1520px) { :root { --section-space: 160px; } }
+@supports (margin-bottom: round(nearest, 10vw, 4px)) {
+    :root { --section-space: clamp(80px, round(nearest, 10vw, 4px), 160px); }
+}
+.section-label,
+.home-about h2,
+.typeface-info-heading h2,
+.glyph-picker-heading h2,
+.mono-lab-header h2 {
+    font-family: var(--section-title-font);
+    font-size: var(--section-title-size);
+    font-weight: var(--section-title-weight);
+    line-height: var(--section-title-leading);
+    letter-spacing: -.03em;
+}
+.glyph-picker-heading { padding-top: 12px; padding-bottom: 12px; }
+@media (min-width: 768px) {
+    .home-about-copy, .typeface-info-text, .about-frame-copy { grid-column: 7 / 12; }
+    /* Five columns inside a six-column panel, aligned to that panel's start. */
+    .product-description, .logic-description {
+        width: calc((100% - 5 * var(--column-gap)) / 6 * 5 + 4 * var(--column-gap));
+    }
+    .product-description p { max-width: none; }
+    .glyph-preview { top: calc(var(--header-height) + var(--content-top)); }
+}
+@media (max-width: 767px) {
+    :root {
+        --section-title-font: "Geist", var(--font-sans);
+        --section-title-weight: 600;
+    }
+    .text-ko, .text-en,
+    .product-description .text-ko, .product-description .text-en { line-height: 24px; }
+    .page-about .logic-item h2 { font-family: "Geist", var(--font-sans); font-weight: 600; }
+}
+
+.page-typeface .typeface-info { padding-bottom: var(--section-space); }
+
+/* Home: brand mark, introduction, then the connection between furniture and type. */
+.home-foundation-hero,
+.home-foundation-story { display: grid; grid-template-columns: var(--grid-columns); column-gap: var(--column-gap); margin: 0 var(--page-padding); }
+.home-foundation-hero { align-items: start; row-gap: 64px; padding: 64px 0 var(--section-space); }
+.home-foundation-logo { grid-column: 1 / -1; min-width: 0; line-height: 0; }
+.home-foundation-logo img { display: block; width: 100%; height: auto; }
+.home-foundation-intro { grid-column: 7 / 12; display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.home-foundation-intro .home-foundation-lead { font-size: clamp(24px, 1.6vw, 32px); }
+.home-foundation-lead,
+.home-foundation-statement { font-family: var(--font-sans); font-size: clamp(24px, 2.2vw, 40px); font-weight: 400; line-height: 1.4; letter-spacing: -.03em; word-break: keep-all; overflow-wrap: break-word; }
+.home-foundation-story { padding-bottom: var(--section-space); align-items: start; }
+.home-foundation-story > .section-label { grid-column: 1 / -1; }
+.home-foundation-statement { grid-column: 1 / 7; }
+.home-foundation-copy { grid-column: 7 / 12; display: flex; flex-direction: column; gap: 48px; min-width: 0; }
+.home-foundation-paragraph { display: flex; flex-direction: column; gap: 28px; }
+.home-foundation-link { width: fit-content; padding: 0; border: 0; font: 12px/20px var(--font-en); text-decoration: none; text-underline-offset: 4px; transition: none; }
+.home-foundation-link:hover { text-decoration: underline; }
+.home-foundation-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+@media (max-width: 767px) {
+    .home-foundation-hero { row-gap: 32px; padding-top: 40px; }
+    .home-foundation-logo, .home-foundation-intro, .home-foundation-statement, .home-foundation-copy { grid-column: 1 / -1; }
+    .home-foundation-logo img { width: 100%; }
+    .home-foundation-lead, .home-foundation-statement { font-size: 24px; line-height: 1.5; }
+    .home-foundation-statement { margin-bottom: 32px; }
+}
+
+/* Intact logo units assemble along the frame's horizontal and vertical axes. */
+.home-logo-assembly { display: block; width: 100%; height: auto; fill: currentColor; overflow: visible; }
+.home-logo-assembly [data-home-letter] { pointer-events: none; }
+.home-foundation-hero { row-gap: 0; }
+
+.home-logo-mobile { display: none; }
+@media (max-width: 767px) {
+    .home-logo-desktop { display: none; }
+    .home-logo-mobile { display: block; }
+}
+
+/* Home uses the same inspector after its construction animation finishes. */
+.home-logo-assembly { touch-action: auto; }
+.home-logo-assembly[data-logo-ready="true"] .logo-glyph path { touch-action: none; pointer-events: fill; }
+.home-logo-assembly .logo-glyph.is-active .home-logo-fill { fill: transparent; stroke: currentColor; stroke-width: .5; }
+.home-logo-assembly[data-logo-ready="false"] .logo-glyph { cursor: default; }
+
+/* Pointer interaction has no native focus ring; keyboard focus uses site styling. */
+:focus:not(:focus-visible) { outline: none; }
+:where(button, select, textarea, [tabindex]):focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+.home-logo-assembly:focus,
+.about-inspector-svg:focus { outline: none; }
+.home-foundation-logo,
+.home-logo-assembly { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }

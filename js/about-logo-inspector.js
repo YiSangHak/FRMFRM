@@ -1,6 +1,5 @@
-const host = document.querySelector('.about-logo-inspector');
-if (host) {
-    const svg = host.querySelector('.about-inspector-svg');
+document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(host => {
+    const svg = host.matches('.home-logo-assembly') ? host : host.querySelector('.about-inspector-svg');
     const glyphs = [...host.querySelectorAll('.logo-glyph')];
     const ns = 'http://www.w3.org/2000/svg';
     // Draw in screen pixels so handles and labels keep their size at every breakpoint.
@@ -23,6 +22,8 @@ if (host) {
     let active = null;
     let pointer = null;
     let frame = 0;
+    let retainedTouch = null;
+    let touchPointerId = null;
     const create = (tag, attrs) => {
         const node = document.createElementNS(ns, tag);
         Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
@@ -40,7 +41,18 @@ if (host) {
         const transform = active.getScreenCTM();
         if (!matrix || !transform) return;
         const box = active.getBoundingClientRect();
-        const origin = new DOMPoint(0, 0).matrixTransform(active.transform.baseVal.consolidate().matrix);
+        if (!box.width || box.bottom < 0 || box.top > innerHeight) {
+            hud.classList.remove('is-visible');
+            return;
+        }
+        hud.classList.add('is-visible');
+        if (retainedTouch) {
+            const screenPoint = new DOMPoint(retainedTouch.x, retainedTouch.y).matrixTransform(matrix);
+            pointer = { x: screenPoint.x, y: screenPoint.y };
+        }
+        const localBox = active.getBBox();
+        const origin = new DOMPoint(localBox.x, localBox.y).matrixTransform(transform).matrixTransform(matrix.inverse());
+        const corner = new DOMPoint(localBox.x + localBox.width, localBox.y + localBox.height).matrixTransform(transform).matrixTransform(matrix.inverse());
         const { left: x, top: y, right, bottom, width, height } = box;
         // No viewBox: overlay units are CSS pixels, just like getScreenCTM().
         // innerWidth includes the scrollbar; using it as a viewBox rescales and
@@ -49,16 +61,20 @@ if (host) {
         [x, right].forEach(value => create('line', { x1: value, y1: 0, x2: value, y2: innerHeight, class: 'logo-guide' }));
         [y, bottom].forEach(value => create('line', { x1: 0, y1: value, x2: innerWidth, y2: value, class: 'logo-guide' }));
         create('rect', { x, y, width, height, class: 'logo-selection' });
+        const homeLogo = svg.classList.contains('home-logo-assembly');
+        const anchorSize = homeLogo ? Number(svg.dataset.anchorSize) || 5 : 5;
+        const cornerSize = homeLogo ? anchorSize : 6;
+        const anchorStyle = homeLogo ? `stroke-width: ${Number(svg.dataset.anchorStroke) || .8}px` : '';
         active.dataset.points.split(' ').forEach(pair => {
             const [px, py] = pair.split(',').map(Number);
             const point = new DOMPoint(px, py).matrixTransform(transform);
-            create('rect', { x: point.x - 2.5, y: point.y - 2.5, width: 5, height: 5, class: 'logo-anchor' });
+            create('rect', { x: point.x - anchorSize / 2, y: point.y - anchorSize / 2, width: anchorSize, height: anchorSize, class: 'logo-anchor', style: anchorStyle });
         });
         [[x,y], [right,y], [x,bottom], [right,bottom]].forEach(([px,py]) => {
-            create('rect', { x: px - 3, y: py - 3, width: 6, height: 6, class: 'logo-anchor' });
+            create('rect', { x: px - cornerSize / 2, y: py - cornerSize / 2, width: cornerSize, height: cornerSize, class: 'logo-anchor', style: anchorStyle });
         });
-        labelAt(labels[0], `(${origin.x}, ${origin.y})`, x, y - 23);
-        labelAt(labels[1], `(${origin.x + 70}, ${origin.y + 100})`, right + 9, bottom + 7);
+        labelAt(labels[0], `(${Number(origin.x.toFixed(2))}, ${Number(origin.y.toFixed(2))})`, x, y - 23);
+        labelAt(labels[1], `(${Number(corner.x.toFixed(2))}, ${Number(corner.y.toFixed(2))})`, right + 9, bottom + 7);
         marker.style.display = pointer ? '' : 'none';
         labels[2].style.display = pointer ? '' : 'none';
         if (pointer) {
@@ -75,6 +91,7 @@ if (host) {
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(draw); };
     const show = glyph => {
+        if (svg.dataset.logoReady === 'false') return;
         active = glyph;
         glyphs.forEach(item => item.classList.toggle('is-active', item === glyph));
         hud.classList.add('is-visible');
@@ -83,29 +100,61 @@ if (host) {
     const clear = () => {
         active = null;
         pointer = null;
+        retainedTouch = null;
         hud.classList.remove('is-visible');
         glyphs.forEach(glyph => glyph.classList.remove('is-active'));
     };
     glyphs.forEach(glyph => {
-        glyph.addEventListener('focus', () => { pointer = null; show(glyph); });
+        glyph.addEventListener('focus', () => {
+            if (retainedTouch) return;
+            pointer = null; show(glyph);
+        });
     });
-    svg.addEventListener('pointermove', event => {
+    const updatePointer = (event, touch) => {
+        if (svg.dataset.logoReady === 'false') return;
         pointer = { x: event.clientX, y: event.clientY };
-        // Use the glyph bounds, including counters, for stable selection.
+        if (touch) {
+            const matrix = svg.getScreenCTM();
+            if (matrix) {
+                const point = new DOMPoint(pointer.x, pointer.y).matrixTransform(matrix.inverse());
+                retainedTouch = { x: point.x, y: point.y };
+            }
+        } else retainedTouch = null;
+        // Bounds include counters, even when the selected glyph is only an outline.
         const glyph = glyphs.find(item => {
             const box = item.getBoundingClientRect();
             return pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
         });
         if (glyph) show(glyph);
         else if (active) schedule();
+    };
+    svg.addEventListener('pointermove', event => {
+        const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
+        if (touch && event.pointerId !== touchPointerId) return;
+        updatePointer(event, touch);
     });
     svg.addEventListener('pointerdown', event => {
-        const glyph = event.target.closest('.logo-glyph');
-        if (glyph) { pointer = { x: event.clientX, y: event.clientY }; show(glyph); }
+        if (svg.dataset.logoReady === 'false') return;
+        const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
+        if (touch) {
+            // Only gestures that begin on an actual glyph face belong to the inspector.
+            if (!event.target.closest('.logo-glyph') || touchPointerId !== null) return;
+            touchPointerId = event.pointerId;
+            svg.setPointerCapture(event.pointerId);
+        }
+        updatePointer(event, touch);
     });
-    host.addEventListener('pointerleave', clear);
-    host.addEventListener('focusout', event => { if (!host.contains(event.relatedTarget)) clear(); });
+    const releaseTouch = event => {
+        if (event.pointerId !== touchPointerId) return;
+        touchPointerId = null;
+        if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
+        // Keep the last SVG-local position after the finger leaves the screen.
+        schedule();
+    };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => svg.addEventListener(type, releaseTouch));
+    host.addEventListener('pointerleave', () => { if (!retainedTouch) clear(); });
+    host.addEventListener('focusout', event => { if (!retainedTouch && !host.contains(event.relatedTarget)) clear(); });
     window.addEventListener('resize', schedule);
-    window.addEventListener('scroll', clear, { passive: true });
+    window.addEventListener('scroll', () => { if (retainedTouch) schedule(); else clear(); }, { passive: true });
     window.addEventListener('blur', clear);
-}
+});

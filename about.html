@@ -104,6 +104,8 @@
         </section>
 
 
+
+
         <!-- Structural logic -->
         <section class="about-logic">
 
@@ -149,6 +151,17 @@
         </section>
 
 
+        <section class="about-frame" aria-labelledby="about-frame-heading">
+            <h2 class="section-label about-frame-heading" id="about-frame-heading">FRAME AS A STARTING POINT</h2>
+            <div class="about-frame-visual">
+                <div class="model-viewer" id="model-viewer" role="img" aria-label="천천히 회전하는 알루미늄 프로파일 정육면체 프레임. 드래그하여 방향을 바꿀 수 있습니다."></div>
+            </div>
+            <div class="about-frame-copy">
+                <p lang="ko" class="text-ko">FRMFRM은 알루미늄 프로파일을 직각으로 결합한 정육면체 프레임을 기본 구조로 삼습니다. 이 프레임의 비례를 조절하고 부재를 확장하며, 합판을 더해 서로 다른 기능의 가구를 만듭니다.</p>
+                <p lang="en" class="text-en">FRMFRM takes a cubic frame assembled from aluminum profiles at right angles as its basic structure. By adjusting its proportions, extending its members and adding plywood, the frame develops into furniture with different functions.</p>
+            </div>
+        </section>
+
     </main>
 
 
@@ -174,8 +187,18 @@
     </footer>
 
 
+    <script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+}
+</script>
+    <script type="module" src="./js/home-3d.js?v=aluminum-01"></script>
+
     <script src="./js/main.js?v=idle-home-03"></script>
-    <script type="module" src="./js/about-logo-inspector.js"></script>
+    <script type="module" src="./js/about-logo-inspector.js?v=home-anchor-size-05"></script>
     <script type="module" src="./js/about-brand-diagram.js"></script>
 
 </body>
