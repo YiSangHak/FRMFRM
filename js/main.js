@@ -61,7 +61,7 @@ function initProfileNavigation() {
             navigation.hidden = false;
             button.removeAttribute('aria-expanded');
             button.removeAttribute('aria-controls');
-            button.setAttribute('aria-label', 'FRMFRM MONO 웹캠 열기');
+            button.setAttribute('aria-label', 'FRMFRM PHOTO BOOTH 열기');
             button.setAttribute('aria-haspopup', 'dialog');
         }
     };
