@@ -147,6 +147,11 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
         hud.classList.remove('is-visible');
         glyphs.forEach(glyph => glyph.classList.remove('is-active'));
     };
+    if (svg.classList.contains('home-logo-assembly')) {
+        new MutationObserver(() => {
+            if (svg.dataset.logoReady === 'false') clear();
+        }).observe(svg, {attributes:true, attributeFilter:['data-logo-ready']});
+    }
     glyphs.forEach(glyph => {
         glyph.addEventListener('focus', () => {
             if (retainedTouch || !glyph.matches(':focus-visible')) return;

@@ -126,8 +126,20 @@
         }
         new ResizeObserver(sizeAnchors).observe(svg);
         sizeAnchors();
-        let animations = [], generation = 0;
-        function finish() {
+        const idlePause = 8000;
+        let animations = [], generation = 0, replayTimer = 0, inView = false, leaving = false;
+        function scheduleReplay() {
+            clearTimeout(replayTimer);
+            if (leaving || reduced.matches || document.hidden || !inView || getComputedStyle(svg).display === 'none') return;
+            replayTimer = setTimeout(() => {
+                if (document.querySelector('dialog[open]') || document.querySelector('.site-header.is-menu-open')) {
+                    scheduleReplay(); return;
+                }
+                play();
+            }, idlePause);
+        }
+        function finish(repeat = true) {
+            clearTimeout(replayTimer);
             generation++;
             animations.forEach(animation => animation.cancel());
             animations = [];
@@ -137,10 +149,11 @@
             });
             anchors.style.opacity = '0';
             svg.dataset.logoReady = 'true';
+            if (repeat) scheduleReplay();
         }
         function play() {
-            finish();
-            if (reduced.matches || getComputedStyle(svg).display === 'none') return;
+            finish(false);
+            if (leaving || document.hidden || reduced.matches || getComputedStyle(svg).display === 'none') return;
             svg.dataset.logoReady = 'false';
             const current = generation;
             const revealTimes = points.map(({x}) => 320+x/(mobileLogo?230:470)*650+Math.random()*90);
@@ -191,10 +204,26 @@
             });
             Promise.all(animations.map(animation=>animation.finished)).then(()=>{if(generation===current)finish();}).catch(()=>{});
         }
-        reduced.addEventListener('change',finish);
+        const onInput = () => {
+            // Let the intro finish before enabling the coordinate inspector.
+            // Interaction only postpones the next idle replay.
+            clearTimeout(replayTimer);
+            if (!animations.length) scheduleReplay();
+        };
+        ['pointermove','pointerdown','wheel','touchstart','touchmove','keydown','input']
+            .forEach(type=>window.addEventListener(type,onInput,{passive:true,capture:true}));
+        new IntersectionObserver(entries=>{
+            inView=entries[0].isIntersecting && entries[0].intersectionRatio >= .35;
+            if (!inView) finish(false);
+            else if (!animations.length) scheduleReplay();
+        },{threshold:[0,.35]}).observe(svg);
+        document.addEventListener('visibilitychange',()=>{
+            if (document.hidden) finish(false); else scheduleReplay();
+        });
+        reduced.addEventListener('change',()=>{finish(false);scheduleReplay();});
         matchMedia('(max-width: 767px)').addEventListener('change',play);
-        window.addEventListener('pagehide',finish);
-        window.addEventListener('pageshow',event=>{if(event.persisted)play();});
+        window.addEventListener('pagehide',()=>{leaving=true;finish(false);});
+        window.addEventListener('pageshow',event=>{if(event.persisted){leaving=false;play();}});
         play();
     });
 })();
