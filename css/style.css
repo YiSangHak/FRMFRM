@@ -1390,6 +1390,7 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
     line-height: 16px;
 }
 .site-nav a { width: fit-content; text-underline-offset: 4px; }
+.site-nav a:focus-visible,
 .site-nav a:hover,
 .site-nav a[aria-current="page"] { text-decoration: underline; }
 
@@ -1508,7 +1509,10 @@ a:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .footer-logo { grid-column: 1 / 3; }
 .footer-nav { grid-column: 7 / 10; gap: 6px; }
 .footer-copyright { grid-column: 10 / 13; }
-.footer-nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.footer-nav a:hover,
+.footer-nav a:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.site-nav a:focus-visible,
+.footer-nav a:focus-visible { outline: none; }
 
 @media (max-width: 1024px) and (min-width: 768px) {
     .site-nav { font-size: 11px; }

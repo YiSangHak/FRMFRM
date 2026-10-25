@@ -7,12 +7,20 @@
 
 "use strict";
 
+// Exhibition interaction uses pointer selection; text entry remains native.
+document.addEventListener('keydown', event => {
+    if (event.key === 'Tab') event.preventDefault();
+}, true);
+
 
 /* ============================================================
    01. DOM READY
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.site-nav a, .footer-nav a').forEach(link => {
+        link.tabIndex = -1;
+    });
     initSmoothScroll();
     initIdleHomeReturn();
     initProfileNavigation();
@@ -62,7 +70,6 @@ function initProfileNavigation() {
         if (mobile.matches) {
             const open = button.getAttribute('aria-expanded') !== 'true';
             setOpen(open);
-            if (open && event.detail === 0) navigation.querySelector('a')?.focus();
         } else button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
     });
     navigation.addEventListener('click', event => {

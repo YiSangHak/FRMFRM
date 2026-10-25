@@ -91,7 +91,7 @@
             const glyph = path.parentElement;
             glyph.classList.add('logo-glyph');
             glyph.dataset.points = vertices.map(point => point.join(',')).join(' ');
-            glyph.setAttribute('tabindex', '0');
+            glyph.setAttribute('tabindex', '-1');
             glyph.setAttribute('role', 'img');
             glyph.setAttribute('aria-label', `${'FRMFRM'[index]} · logo`);
             return { path, fill, mask, strokes, vertices };
