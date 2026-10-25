@@ -128,6 +128,11 @@ if (lab) {
     };
     orbit.addEventListener('pointerdown', event => {
         if (event.button !== 0 || dialDrag) return;
+        if (event.pointerType === 'touch') {
+            const rect = orbit.querySelector('.lab-orbit-stage').getBoundingClientRect();
+            const radius = Math.min(rect.width, rect.height) * .44;
+            if (Math.hypot(event.clientX - rect.left - rect.width / 2, event.clientY - rect.top - rect.height / 2) > radius) return;
+        }
         suppressDialClick = false;
         cancelAnimationFrame(dialFrame);
         dialFrame = dialPrevious = 0;
@@ -137,6 +142,15 @@ if (lab) {
     });
     orbit.addEventListener('pointermove', event => {
         if (!dialDrag || event.pointerId !== dialDrag.id) return;
+        const dx = event.clientX - dialDrag.x, dy = event.clientY - dialDrag.y;
+        if (event.pointerType === 'touch' && !dialDrag.moved) {
+            if (Math.abs(dy) > 5 && Math.abs(dy) >= Math.abs(dx)) {
+                releaseDial(event);
+                suppressDialClick = true;
+                return;
+            }
+            if (Math.abs(dx) <= 8 || Math.abs(dx) <= Math.abs(dy)) return;
+        }
         const angle = pointerAngle(event);
         if (!dialDrag.moved && Math.hypot(event.clientX - dialDrag.x, event.clientY - dialDrag.y) > 5) {
             dialDrag.moved = true;
@@ -186,7 +200,7 @@ if (lab) {
     const hoverTimers = new Map();
     const boardCache = new Map();
     function boardText() {
-        columns = smallBoard.matches ? 24 : 48;
+        columns = smallBoard.matches ? 25 : 48;
         rows = 22;
         const cacheKey = `${columns}:${messageIndex}`;
         const applyBoardMetadata = () => {
@@ -216,8 +230,8 @@ if (lab) {
             const firstRow = Math.floor((rows - (phrases.length * 2 - 1)) / 2);
             phrases.forEach((phrase, index) => text(phrase, firstRow + index * 2, left));
         } else if (messageIndex === 1) {
-            // An off-centre solid crossing, cut by one continuous open joint.
-            const joint = Math.floor(columns * .63);
+            // A centred crossing with equal arms and an open joint.
+            const joint = Math.floor((columns - 1) / 2);
             for (let y = 1; y < 19; y++) for (let x = 1; x < columns - 1; x++) {
                 const upright = x >= joint - 2 && x <= joint + 2;
                 const beam = y >= 7 && y <= 11;
@@ -238,10 +252,13 @@ if (lab) {
             }
             text('Aluminum Profile', 20);
         } else if (scenes[messageIndex] === 'MODULAR') {
-            // A complete field of identical repeating units.
+            // Centre complete modules, including equal outer margins.
             const unit = smallBoard.matches ? 6 : 8;
-            for (let y = 1; y < 18; y++) for (let x = 0; x < columns; x++) {
-                const u = x % unit, v = (y - 1) % 6;
+            const count = Math.floor((columns - 4 + 1) / unit);
+            const width = count * unit - 1;
+            const left = Math.floor((columns - width) / 2);
+            for (let y = 1; y < 18; y++) for (let x = left; x < left + width; x++) {
+                const u = (x - left) % unit, v = (y - 1) % 6;
                 if (u < unit - 1 && v < 5) {
                     const edge = u === 0 || u === unit - 2 || v === 0 || v === 4;
                     if (edge) put(x, y, (u === 0 || u === unit - 2) && (v === 0 || v === 4) ? '+' : 'F');
@@ -251,7 +268,7 @@ if (lab) {
         } else if (scenes[messageIndex] === 'STRUCTURAL') {
             // Sparse portal frames: long spans, deep negative space, shared datum.
             const left = 3, right = columns - 4;
-            const middle = Math.floor(columns * .58);
+            const middle = Math.floor((left + right) / 2);
             line(left, 4, right, 4, '=');
             line(left, 5, right, 5, '-');
             [left, middle, right].forEach(x => {
