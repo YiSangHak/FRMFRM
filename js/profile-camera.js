@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hint = document.createElement('div');
     hint.className = 'profile-camera-hint'; hint.id = 'profile-camera-hint';
     hint.setAttribute('role', 'tooltip');
-    hint.innerHTML = '<strong>FRMFRM PHOTO BOOTH</strong><p>카메라로 담은 장면을 브랜드 서체 FRMFRM MONO로 그려보세요.</p><p>클릭하여 시작 ↗</p>';
+    hint.innerHTML = '<strong>FRMFRM PHOTO BOOTH</strong><p>카메라로 담은 장면을 브랜드 서체 FRMFRM MONO로 그려보세요.</p><p>클릭하여 시작 ↗</p><div class="profile-camera-qr"><img src="./assets/qr/photo-booth.svg" width="132" height="132" alt="휴대폰 포토부스를 여는 QR 코드"><p>휴대폰으로도 촬영해보세요.<br>QR 코드를 스캔하면 포토부스가 열립니다.</p></div>';
     const connector = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     connector.classList.add('profile-camera-connector'); connector.setAttribute('aria-hidden', 'true');
     const line = document.createElementNS(connector.namespaceURI, 'line'); connector.append(line);
@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mobile.addEventListener('change',()=>{hideHint();close();});
     window.addEventListener('pagehide', close);
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;}else if(dialog.open&&stream&&!captured){last=0;frame=requestAnimationFrame(render);}});
+    if (mobile.matches && new URLSearchParams(location.search).get('photobooth')==='1') open();
     document.fonts.load('14px "FRMFRM Mono"').then(()=>{
         const test=document.createElement('canvas');test.width=test.height=40;const ctx=test.getContext('2d',{willReadFrequently:true});ctx.font='24px "FRMFRM Mono"';
         palette=[...' .-=+FRM'].map(char=>{ctx.clearRect(0,0,40,40);ctx.fillText(char,4,28);const data=ctx.getImageData(0,0,40,40).data;let area=0;for(let i=3;i<data.length;i+=4)area+=data[i];return {char,area};}).sort((a,b)=>a.area-b.area).map(item=>item.char);
