@@ -93,8 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
             dialog.style.height = `${width/aspect+controlsHeight+2}px`;
         }
         const rect = canvas.parentElement.getBoundingClientRect();
-        const displayWidth = Math.max(1,Math.min(rect.width,rect.height*aspect));
-        const displayHeight = displayWidth/aspect;
+        const fillMobile = isMobileMode() && !captured;
+        const displayWidth = Math.max(1,fillMobile ? rect.width : Math.min(rect.width,rect.height*aspect));
+        const displayHeight = Math.max(1,fillMobile ? rect.height : displayWidth/aspect);
         canvas.style.width = `${displayWidth}px`; canvas.style.height = `${displayHeight}px`;
         const fontSize = isMobileMode() ? 12 : 14;
         context.font = `${fontSize}px "FRMFRM Mono", monospace`;
@@ -120,7 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
         last = now;
         const width = canvas.width, height = canvas.height;
         sampler.save(); if (actualFacing==='user') { sampler.translate(columns,0); sampler.scale(-1,1); }
-        sampler.drawImage(video,0,0,video.videoWidth,video.videoHeight,0,0,columns,rows); sampler.restore();
+        // Mobile fills the preview with a centred crop; desktop preserves the full frame.
+        const scale = Math.max(width/video.videoWidth,height/video.videoHeight);
+        const sw = isMobileMode() ? width/scale : video.videoWidth;
+        const sh = isMobileMode() ? height/scale : video.videoHeight;
+        sampler.drawImage(video,(video.videoWidth-sw)/2,(video.videoHeight-sh)/2,sw,sh,0,0,columns,rows); sampler.restore();
         const pixels = sampler.getImageData(0,0,columns,rows).data;
         context.fillStyle = '#000'; context.fillRect(0,0,width,height); context.fillStyle = '#fff';
         const offset = (height-rows*cellHeight)/2;
@@ -151,7 +156,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const request=++generation;
         try {
             if (!navigator.mediaDevices?.getUserMedia) throw new Error('unavailable');
-            const camera=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},aspectRatio:{ideal:16/9},facingMode:isMobileMode() ? {exact:facing} : 'user'},audio:false});
+            const videoConstraints = isMobileMode()
+                ? {facingMode:{exact:facing}}
+                : {width:{ideal:1280},height:{ideal:720},aspectRatio:{ideal:16/9},facingMode:'user'};
+            const camera=await navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false});
             if (request!==generation || !dialog.open) { camera.getTracks().forEach(track=>track.stop()); return; }
             stream=camera; actualFacing=camera.getVideoTracks()[0].getSettings().facingMode || facing;
             video.srcObject=stream; await video.play();
