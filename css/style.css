@@ -2278,7 +2278,7 @@ html { -webkit-tap-highlight-color: transparent; }
 
 /* Shared editorial foundations: section labels, copy widths and spacing. */
 :root {
-    --section-title-size: 13px;
+    --section-title-size: 14px;
     --section-title-leading: 20px;
     --section-title-weight: 400;
     --section-title-font: var(--font-en);
@@ -2316,12 +2316,12 @@ html { -webkit-tap-highlight-color: transparent; }
 }
 @media (max-width: 767px) {
     :root {
-        --section-title-font: "Geist", var(--font-sans);
+        --section-title-font: var(--font-en);
         --section-title-weight: 400;
     }
     .text-ko, .text-en,
     .product-description .text-ko, .product-description .text-en { line-height: 24px; }
-    .page-about .logic-item h2 { font-family: "Geist", var(--font-sans); font-weight: 400; }
+    .page-about .logic-item h2 { font-family: var(--font-en); font-weight: 400; }
 }
 
 .page-typeface .typeface-info { padding-bottom: var(--section-space); }
@@ -2435,3 +2435,78 @@ html { -webkit-tap-highlight-color: transparent; }
    including the close button automatically focused by a native dialog. */
 html body :focus,
 html body :focus-visible { outline: none !important; }
+
+/* Shared typography roles: editorial text stays separate from graphic specimens. */
+:root {
+    --type-ui-size: 14px;
+    --type-note-size: 12px;
+    --type-coordinate-size: 10px;
+    --type-diagram-label-size: 14px;
+}
+.site-header .site-nav,
+.site-footer .footer-logo,
+.site-footer .footer-nav,
+.site-footer .footer-nav a,
+.site-footer .footer-copyright,
+.home-foundation-link {
+    font-family: var(--font-en);
+    font-size: var(--type-ui-size);
+    font-weight: 400;
+    line-height: 20px;
+}
+.lab-caption,
+.lab-comparison .lab-caption,
+.mono-lab-header > span,
+.mono-lab-note,
+.glyph-meta,
+.glyph-status,
+.glyph-picker-heading,
+.typeface-title-controls,
+.typeface-title-controls .type-tester-control,
+.product-viewer-status {
+    font-family: var(--font-en);
+    font-size: var(--type-note-size);
+    font-weight: 400;
+    line-height: 16px;
+}
+.logo-inspector-hud .logo-coordinate-label {
+    font-family: var(--font-en);
+    font-size: var(--type-coordinate-size);
+}
+.product-viewer-dialog-header h2 {
+    font-family: var(--section-title-font);
+    font-size: var(--section-title-size);
+    font-weight: 400;
+    line-height: var(--section-title-leading);
+}
+@media (max-width: 767px) {
+    :root { --type-ui-size: 14px; }
+}
+
+/* Annotations follow their SVG points but keep their own CSS pixel size. */
+.svg-text-host { position: relative; }
+.svg-text-host svg text.lab-svg-label,
+.svg-text-host svg .lab-projection-labels text,
+.svg-text-host svg text.brand-diagram-label,
+.svg-text-host svg text.brand-diagram-center,
+.svg-text-host svg text.glyph-guide-label { visibility: hidden; pointer-events: none; }
+.svg-text-label-layer { position: absolute; inset: 0; display: block; pointer-events: none; z-index: 2; }
+.svg-text-label {
+    position: absolute;
+    display: block;
+    width: max-content;
+    max-width: none;
+    padding: 0;
+    font: 400 var(--type-note-size)/1 var(--font-en);
+    letter-spacing: 0;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.svg-text-label[hidden] { display: none; }
+.svg-text-label[data-kind="primary"] { font-size: var(--type-diagram-label-size); }
+.svg-text-label[data-kind="brand"] { font-family: var(--font-mono); font-size: 24px; }
+@media (max-width: 767px) {
+    .svg-text-label[data-kind="brand"] { font-size: clamp(14px, 4vw, 20px); }
+}
+
+.logic-number { font-family: var(--font-en); font-size: 14px; font-weight: 400; line-height: 20px; }
