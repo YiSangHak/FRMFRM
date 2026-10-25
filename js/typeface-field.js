@@ -177,7 +177,8 @@ if (lab) {
     const reels = lab.querySelector('[data-study="reels"]');
     const reelWindow = reels.querySelector('.lab-reel-window');
     const smallBoard = window.matchMedia('(max-width: 767px)');
-    const reelAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!()+-.=?[]_{|} ';
+    const reelAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!()+-.=?_| ';
+    const reelGlyphs = new Set(reelAlphabet);
     const description = 'FRMFRM MONO is a modular monospaced display typeface developed from the structural principles of aluminum profiles.';
     const scenes = [description, 'ORTHOGONAL', 'STRUCTURAL', 'MODULAR', 'STANDARDIZED', 'Aluminum Profile', 'FRMFRM'];
     let messageIndex = 0, boardCells = [], boardFrame = 0, boardVisible = false;
@@ -237,12 +238,11 @@ if (lab) {
             }
             text('Aluminum Profile', 20);
         } else if (scenes[messageIndex] === 'MODULAR') {
-            // A field of identical units with a deliberate, quiet missing bay.
+            // A complete field of identical repeating units.
             const unit = smallBoard.matches ? 6 : 8;
             for (let y = 1; y < 18; y++) for (let x = 0; x < columns; x++) {
                 const u = x % unit, v = (y - 1) % 6;
-                const missing = Math.floor(x / unit) === Math.floor(columns / unit) - 2 && y >= 7 && y < 13;
-                if (!missing && u < unit - 1 && v < 5) {
+                if (u < unit - 1 && v < 5) {
                     const edge = u === 0 || u === unit - 2 || v === 0 || v === 4;
                     if (edge) put(x, y, (u === 0 || u === unit - 2) && (v === 0 || v === 4) ? '+' : 'F');
                 }
@@ -300,7 +300,7 @@ if (lab) {
             } else drawWord('FRMFRM', 3, 2);
             text('FRMFRM MONO', 20);
         }
-        targets = grid.flat();
+        targets = grid.flat().map(char => reelGlyphs.has(char.toUpperCase()) ? char.toUpperCase() : ' ');
         boardCache.set(cacheKey, targets);
         applyBoardMetadata();
     }
@@ -339,7 +339,7 @@ if (lab) {
             if (step !== lastStep) {
                 boardCells.forEach((cell, index) => {
                     if (finished[index]) return;
-                    const delay = index % columns * 14 + Math.floor(index / columns) * 32;
+                    const delay = ((Math.imul(index + 17, 2654435761) >>> 0) % 90);
                     const duration = 430 + index % 7 * 65;
                     if (targets[index] === ' ' && cell.firstChild.textContent === ' ') { finished[index] = 1; return; }
                     const local = elapsed - delay;
@@ -347,7 +347,7 @@ if (lab) {
                     if (local < duration) {
                         active = true;
                         cell.classList.add('is-flipping');
-                        const char = reelAlphabet[(step * 7 + index * 11) % reelAlphabet.length];
+                        const char = reelAlphabet[(step + index * 11) % reelAlphabet.length];
                         if (cell.firstChild.textContent !== char) cell.firstChild.textContent = char;
                     } else {
                         cell.classList.remove('is-flipping');
@@ -375,7 +375,7 @@ if (lab) {
             cell.classList.remove('is-flipping'); hoverTimers.delete(cell);
         }, 220));
     });
-    reels.addEventListener('click', () => { messageIndex = (messageIndex + 1) % scenes.length; rollBoard(); });
+    reels.addEventListener('click', () => { if (boardFrame) return; messageIndex = (messageIndex + 1) % scenes.length; rollBoard(); });
     smallBoard.addEventListener('change', buildBoard);
     let boardEntered = false;
     new IntersectionObserver(entries => {
