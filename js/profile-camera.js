@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mobile.addEventListener('change',()=>{hideHint();if(dialog.open && dialog.classList.contains('is-mobile-session')) resize();else close();});
     window.addEventListener('pagehide', close);
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;}else if(dialog.open&&stream&&!captured){last=0;frame=requestAnimationFrame(render);}});
-    if (isMobileMode() && new URLSearchParams(location.search).get('photobooth')==='1') open();
+    if (new URLSearchParams(location.search).get('photobooth')==='1') open();
     document.fonts.load('14px "FRMFRM Mono"').then(()=>{
         const test=document.createElement('canvas');test.width=test.height=40;const ctx=test.getContext('2d',{willReadFrequently:true});ctx.font='24px "FRMFRM Mono"';
         palette=[...' .-=+FRM'].map(char=>{ctx.clearRect(0,0,40,40);ctx.fillText(char,4,28);const data=ctx.getImageData(0,0,40,40).data;let area=0;for(let i=3;i<data.length;i+=4)area+=data[i];return {char,area};}).sort((a,b)=>a.area-b.area).map(item=>item.char);
