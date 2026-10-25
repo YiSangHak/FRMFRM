@@ -214,7 +214,9 @@
             .forEach(type=>window.addEventListener(type,onInput,{passive:true,capture:true}));
         new IntersectionObserver(entries=>{
             inView=entries[0].isIntersecting && entries[0].intersectionRatio >= .35;
-            if (!inView) finish(false);
+            // Scrolling must not cancel an intro already in progress.
+            // Visibility only controls whether another idle replay is scheduled.
+            if (!inView) clearTimeout(replayTimer);
             else if (!animations.length) scheduleReplay();
         },{threshold:[0,.35]}).observe(svg);
         document.addEventListener('visibilitychange',()=>{
