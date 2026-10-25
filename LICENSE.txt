@@ -1,0 +1,37 @@
+Copyright (c) 2026 FRMFRM. All rights reserved.
+
+이 저장소에는 오픈소스 라이선스 또는 그 밖의 일반적인 이용 허락을
+부여하지 않습니다.
+
+별도로 명시된 경우를 제외하고, 이 저장소의 소스 코드, 서체, 로고,
+디자인, 이미지, 사진, 영상, 3D 모델 및 기타 에셋을 포함한 모든 콘텐츠의
+권리는 해당 권리자에게 유보됩니다. 권리자의 사전 서면 허락 없이 이를
+복제, 수정, 재배포하거나 다른 프로젝트 또는 상업적 목적으로 사용하는
+것을 허용하지 않습니다.
+
+저장소가 공개되어 있다는 사실은 위 콘텐츠의 재사용을 허락한다는
+뜻이 아닙니다. 다만 관련 법령에서 허용하는 이용 및 GitHub 이용약관에
+따른 열람과 포크 등의 권한을 제한하지 않습니다.
+
+외부 라이브러리, 외부 서체 및 기타 제3자 저작물에는 각 권리자가 정한
+별도의 라이선스와 이용 조건이 적용됩니다. 이 안내문은 해당 권리나
+라이선스를 변경하거나 대체하지 않습니다.
+
+---
+
+No open-source license or other general license is granted for this repository.
+
+Unless otherwise stated, all rights in the contents of this repository,
+including source code, typefaces, logos, designs, images, photographs, videos,
+3D models, and other assets, are reserved by their respective rights holders.
+No permission is granted to reproduce, modify, redistribute, or use these
+contents in other projects or for commercial purposes without prior written
+permission from the applicable rights holder.
+
+Public availability of this repository does not grant permission to reuse its
+contents. This notice does not limit uses permitted by applicable law or rights
+granted under the GitHub Terms of Service, including viewing and forking.
+
+Third-party libraries, fonts, and other third-party materials remain subject
+to their respective licenses and terms. This notice does not modify or replace
+those rights or licenses.
