@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const line = document.createElementNS(connector.namespaceURI, 'line'); connector.append(line);
     const dialog = document.createElement('dialog'); dialog.id = 'profile-camera'; dialog.className = 'profile-camera';
     dialog.setAttribute('aria-labelledby', 'profile-camera-title');
+    const isMobileMode = () => mobile.matches || (dialog.open && dialog.classList.contains('is-mobile-session'));
     dialog.innerHTML = '<header class="profile-camera-header"><h2 id="profile-camera-title">FRMFRM PHOTO BOOTH</h2><button type="button" class="profile-camera-close">CLOSE ×</button></header><div class="profile-camera-stage"><canvas aria-label="웹캠 영상을 FRMFRM MONO 문자로 표현한 실시간 화면"></canvas><p class="profile-camera-status" role="status">카메라 연결 중…</p></div><footer class="profile-camera-footer"><div class="profile-camera-mobile-controls"><button type="button" class="profile-camera-switch" aria-label="후면 카메라로 전환">FLIP ↻</button><button type="button" class="profile-camera-shutter" aria-label="사진 촬영" disabled><span></span></button><button type="button" class="profile-camera-retake" hidden>RETAKE</button></div><button type="button" class="profile-camera-save" disabled>SAVE IMAGE ↓</button><span class="profile-camera-save-status" role="status"></span></footer>';
     hintLayer.append(connector, hint);
     document.body.append(hintLayer, dialog);
@@ -76,14 +77,33 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('blur', hideHint);
     function resize() {
         if (!dialog.open) return;
+        // Size the desktop window around the actual camera frame, including its controls.
+        const sourceWidth = captured?.width || video.videoWidth || 1280;
+        const sourceHeight = captured?.height || video.videoHeight || 720;
+        const aspect = sourceWidth/sourceHeight;
+        if (isMobileMode()) {
+            dialog.style.removeProperty('width'); dialog.style.removeProperty('height');
+        } else {
+            const controlsHeight = dialog.querySelector('.profile-camera-header').getBoundingClientRect().height
+                + dialog.querySelector('.profile-camera-footer').getBoundingClientRect().height;
+            const maxWidth = Math.min(1440, innerWidth-80)-2;
+            const maxHeight = Math.max(1, innerHeight-80-controlsHeight-2);
+            const width = Math.min(maxWidth,maxHeight*aspect);
+            dialog.style.width = `${width+2}px`;
+            dialog.style.height = `${width/aspect+controlsHeight+2}px`;
+        }
         const rect = canvas.parentElement.getBoundingClientRect();
-        const fontSize = mobile.matches ? 12 : 14;
+        const displayWidth = Math.max(1,Math.min(rect.width,rect.height*aspect));
+        const displayHeight = displayWidth/aspect;
+        canvas.style.width = `${displayWidth}px`; canvas.style.height = `${displayHeight}px`;
+        const fontSize = isMobileMode() ? 12 : 14;
         context.font = `${fontSize}px "FRMFRM Mono", monospace`;
         const advance = context.measureText('M').width || 9;
-        columns = Math.max(1, Math.min(160, Math.floor(rect.width/advance)));
-        cellWidth = rect.width/columns; cellHeight = fontSize*1.15;
-        rows = Math.max(1, Math.floor(rect.height/cellHeight));
-        canvas.width = Math.round(rect.width); canvas.height = Math.round(rect.height);
+        columns = Math.max(1, Math.min(160, Math.floor(displayWidth/advance)));
+        cellWidth = displayWidth/columns; cellHeight = fontSize*1.15;
+        rows = Math.max(1, Math.floor(displayHeight/cellHeight));
+        canvas.width = Math.round(displayWidth); canvas.height = Math.round(displayHeight);
+        cellHeight = canvas.height/rows; cellWidth = canvas.width/columns;
         sample.width = columns; sample.height = rows;
         context.font = `${fontSize}px "FRMFRM Mono", monospace`;
         context.textAlign = 'center'; context.textBaseline = 'middle';
@@ -99,10 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (now-last < 1000/15 || video.readyState < 2) return;
         last = now;
         const width = canvas.width, height = canvas.height;
-        const scale = Math.max(width/video.videoWidth, height/video.videoHeight);
-        const sw = width/scale, sh = height/scale;
         sampler.save(); if (actualFacing==='user') { sampler.translate(columns,0); sampler.scale(-1,1); }
-        sampler.drawImage(video,(video.videoWidth-sw)/2,(video.videoHeight-sh)/2,sw,sh,0,0,columns,rows); sampler.restore();
+        sampler.drawImage(video,0,0,video.videoWidth,video.videoHeight,0,0,columns,rows); sampler.restore();
         const pixels = sampler.getImageData(0,0,columns,rows).data;
         context.fillStyle = '#000'; context.fillRect(0,0,width,height); context.fillStyle = '#fff';
         const offset = (height-rows*cellHeight)/2;
@@ -133,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const request=++generation;
         try {
             if (!navigator.mediaDevices?.getUserMedia) throw new Error('unavailable');
-            const camera=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:mobile.matches ? {exact:facing} : 'user'},audio:false});
+            const camera=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},aspectRatio:{ideal:16/9},facingMode:isMobileMode() ? {exact:facing} : 'user'},audio:false});
             if (request!==generation || !dialog.open) { camera.getTracks().forEach(track=>track.stop()); return; }
             stream=camera; actualFacing=camera.getVideoTracks()[0].getSettings().facingMode || facing;
             video.srcObject=stream; await video.play();
@@ -148,13 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function open() {
         if (dialog.open) return;
         captured=null; facing='user'; switching=false; syncControls();
+        dialog.classList.toggle('is-mobile-session', mobile.matches);
         hideHint(); dialog.showModal(); button.setAttribute('aria-pressed','true');
-        dialog.querySelector('.profile-camera-close').textContent=mobile.matches?'×':'CLOSE ×';
-        dialog.querySelector('.profile-camera-close').setAttribute('aria-label',mobile.matches?'포토부스 닫고 홈으로 돌아가기':'포토부스 닫기');
+        dialog.querySelector('.profile-camera-close').textContent=isMobileMode()?'×':'CLOSE ×';
+        dialog.querySelector('.profile-camera-close').setAttribute('aria-label',isMobileMode()?'포토부스 닫고 홈으로 돌아가기':'포토부스 닫기');
         saveStatus.textContent=''; resize(); await startCamera();
     }
     menuEntry.addEventListener('click',()=>{
-        if (!mobile.matches) return;
+        if (!isMobileMode()) return;
         if (button.getAttribute('aria-expanded')==='true') button.click();
         open();
     });
@@ -172,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         captured=null;syncControls();resize();last=0;cancelAnimationFrame(frame);frame=requestAnimationFrame(render);
     });
     saveButton.addEventListener('click', () => {
-        if (saveButton.disabled || (mobile.matches && !captured)) return;
+        if (saveButton.disabled || (isMobileMode() && !captured)) return;
         // Copy the displayed frame so the download is the moment the user clicked.
         const photo = document.createElement('canvas');
         const source=captured || canvas;
@@ -189,21 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
         },'image/png');
     });
     document.querySelector('.footer-photo-booth')?.addEventListener('click',()=>{
-        if (mobile.matches && button.getAttribute('aria-expanded')==='true') button.click();
+        if (isMobileMode() && button.getAttribute('aria-expanded')==='true') button.click();
         open();
     });
     button.addEventListener('profile-camera-open', open);
     dialog.querySelector('.profile-camera-close').addEventListener('click', () => {
-        const goHome=mobile.matches; close(); if(goHome) window.location.assign('./index.html');
+        const goHome=isMobileMode(); close(); if(goHome) window.location.assign('./index.html');
     });
     dialog.addEventListener('close', stop);
     dialog.addEventListener('cancel', stop);
     dialog.addEventListener('click', event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)close();}});
     new ResizeObserver(resize).observe(canvas.parentElement);
-    mobile.addEventListener('change',()=>{hideHint();close();});
+    window.addEventListener('resize', resize);
+    video.addEventListener('resize', resize);
+    mobile.addEventListener('change',()=>{hideHint();if(dialog.open && dialog.classList.contains('is-mobile-session')) resize();else close();});
     window.addEventListener('pagehide', close);
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;}else if(dialog.open&&stream&&!captured){last=0;frame=requestAnimationFrame(render);}});
-    if (mobile.matches && new URLSearchParams(location.search).get('photobooth')==='1') open();
+    if (isMobileMode() && new URLSearchParams(location.search).get('photobooth')==='1') open();
     document.fonts.load('14px "FRMFRM Mono"').then(()=>{
         const test=document.createElement('canvas');test.width=test.height=40;const ctx=test.getContext('2d',{willReadFrequently:true});ctx.font='24px "FRMFRM Mono"';
         palette=[...' .-=+FRM'].map(char=>{ctx.clearRect(0,0,40,40);ctx.fillText(char,4,28);const data=ctx.getImageData(0,0,40,40).data;let area=0;for(let i=3;i<data.length;i+=4)area+=data[i];return {char,area};}).sort((a,b)=>a.area-b.area).map(item=>item.char);
