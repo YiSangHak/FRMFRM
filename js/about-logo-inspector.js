@@ -95,7 +95,8 @@ document.querySelectorAll('.about-logo-inspector, .home-logo-assembly').forEach(
         });
         anchorLabels.replaceChildren();
         const occupied = [];
-        annotatedPoints.forEach(point => {
+        const visibleCoordinates = matchMedia('(max-width: 767px)').matches ? [] : annotatedPoints;
+        visibleCoordinates.forEach(point => {
             const label = document.createElement('span');
             label.className = 'logo-coordinate-label';
             label.textContent = point.text;
