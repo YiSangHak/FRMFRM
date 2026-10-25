@@ -2567,3 +2567,10 @@ html body :focus-visible { outline: none !important; }
 .profile-camera-qr { margin-top: 16px; padding-top: 16px; border-top: 1px solid #000; }
 .profile-camera-qr img { display: block; width: 132px; height: 132px; margin: 0 auto; }
 .profile-camera-qr p { font-size: 12px; line-height: 18px; }
+
+/* A separate Photo Booth entry follows the footer's page links. */
+.site-footer .footer-photo-booth { display: block; margin-top: 14px; padding: 0; border: 0; border-radius: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; white-space: nowrap; cursor: pointer; }
+.site-footer .footer-photo-booth:hover { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 767px) {
+    .site-footer .footer-photo-booth { display: none; }
+}

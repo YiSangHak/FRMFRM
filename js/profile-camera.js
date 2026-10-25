@@ -188,6 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dialog.open) notifySave('이미지가 저장되었습니다.');
         },'image/png');
     });
+    document.querySelector('.footer-photo-booth')?.addEventListener('click',()=>{
+        if (mobile.matches && button.getAttribute('aria-expanded')==='true') button.click();
+        open();
+    });
     button.addEventListener('profile-camera-open', open);
     dialog.querySelector('.profile-camera-close').addEventListener('click', () => {
         const goHome=mobile.matches; close(); if(goHome) window.location.assign('./index.html');
