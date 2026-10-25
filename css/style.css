@@ -2577,3 +2577,9 @@ html body :focus-visible { outline: none !important; }
 .profile-camera.is-mobile-session .profile-camera-shutter[hidden], .profile-camera.is-mobile-session .profile-camera-retake[hidden] { display: none; }
 .profile-camera.is-mobile-session:not(.is-captured) .profile-camera-save { display: none; }
 .profile-camera.is-mobile-session .profile-camera-save-status { bottom: calc(160px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); width: max-content; }
+
+/* Stacked mobile typeface introduction follows the shared section-label rule. */
+@media (max-width: 767px) {
+    .typeface-info { row-gap: 40px; }
+    .typeface-info-heading { padding: 10px 0; border-bottom: var(--rule); }
+}
