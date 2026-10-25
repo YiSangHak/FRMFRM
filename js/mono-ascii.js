@@ -26,9 +26,14 @@
         const step=Math.round(tone*7)/7;
         return palette.reduce((best,item)=>Math.abs(item.tone-step)<Math.abs(best.tone-step)?item:best,palette[0]).char;
     }
-    function polygon(points,fill) {
+    function polygon(points,fill,hole=[]) {
         ink.beginPath();points.forEach(([x,y],i)=>i?ink.lineTo(x,y):ink.moveTo(x,y));
-        ink.closePath();ink.fillStyle=fill;ink.fill();
+        ink.closePath();
+        if(hole.length){
+            hole.forEach(([x,y],i)=>i?ink.lineTo(x,y):ink.moveTo(x,y));
+            ink.closePath();
+        }
+        ink.fillStyle=fill;ink.fill('evenodd');
     }
     function composition(index) {
         if(cache.has(index))return cache.get(index);
@@ -63,13 +68,19 @@
             });
             ink.restore();
         } else if(index===1){
-            // Orthographic frame planes: changes in character coverage give depth.
-            polygon([[8,9],[24,2],[56,7],[40,15]],'#d2d2d2');
-            polygon([[8,9],[40,15],[40,30],[8,23]],'#727272');
-            polygon([[40,15],[56,7],[56,23],[40,30]],'#a0a0a0');
-            polygon([[12,12],[36,17],[36,26],[12,21]],'#000');
-            polygon([[44,17],[52,13],[52,21],[44,25]],'#000');
-            polygon([[18,9],[25,6],[46,9],[39,12]],'#000');
+            // One unit cube, projected along three equal-length isometric axes.
+            // The shared transform above compensates for the physical cell ratio.
+            const side=14;
+            const project=(x,y,z)=>[32+(x-y)*Math.sqrt(3)/2*side,16+((x+y)/2-z)*side];
+            const outer=[[0,0],[1,0],[1,1],[0,1]];
+            const inner=[[.18,.18],[.82,.18],[.82,.82],[.18,.82]];
+            const face=(map,tone)=>polygon(
+                outer.map(([u,v])=>project(...map(u,v))),tone,
+                inner.map(([u,v])=>project(...map(u,v)))
+            );
+            face((u,v)=>[u,v,1],'#d2d2d2');
+            face((u,v)=>[u,1,v],'#727272');
+            face((u,v)=>[1,u,v],'#a0a0a0');
         } else if(index===3){
             // A shared orthogonal grid, with visible intersections and empty bays.
             for(let y=3;y<=27;y++)for(let x=4;x<=52;x++){
@@ -108,8 +119,8 @@
                 if((rim&&!slot)||brace||core)put(left+x,top+y,core?'+':'M');
             }
         } else {
-            // Keep the existing description readable: one actual letter per flap.
-            const description=document.querySelector('.typeface-info-text [lang="en"]').textContent.trim().replace(/\s+/g,' ').toUpperCase().replace(/70:100/g,'SEVENTY TO ONE HUNDRED').replace(/10-UNIT/g,'TEN UNIT');
+            // A short introduction; the full explanation remains below the board.
+            const description='FRMFRM MONO IS A MODULAR MONOSPACED DISPLAY TYPEFACE DEVELOPED FROM THE STRUCTURAL PRINCIPLES OF ALUMINUM PROFILES. ITS LETTERS ARE BUILT FROM VERTICAL AND HORIZONTAL STROKES. ALL CHARACTERS HAVE EQUAL WIDTH.';
             const supportedDescription=boardText(description);
             const left=2,width=columns-left*2,lines=[];
             for(const word of supportedDescription.split(' ')){
