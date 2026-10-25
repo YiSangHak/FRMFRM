@@ -72,10 +72,7 @@
                 <img src="./assets/img/stool-01/00.png" alt="STOOL 01 front view">
             </figure>
 
-            <figure class="product-drawing" data-furniture-drawing="./assets/drawings/stool01-model.json">
-                <figcaption class="section-label">ISOMETRIC STUDY</figcaption>
-                <div class="product-drawing-stage" tabindex="0" role="group" aria-label="가구 부품별 치수 검사. 방향키로 부품을 선택할 수 있습니다."></div>
-            </figure>
+
 
             <figure class="product-gallery-item">
                 <img src="./assets/img/stool-01/01.png" alt="STOOL 01 perspective view" loading="lazy">
@@ -134,6 +131,8 @@
                         STOOL 01 is the most fundamental piece in the collection, developed from the structural logic of aluminum profiles. Its compact footprint and low height allow it to integrate naturally into a wide range of environments. Positioned between a stool and a side table, it adapts flexibly to different uses and situations. Reduced to only the elements essential to its function, it represents the core principles of FRMFRM.
                     </p>
 
+                    <button type="button" class="home-foundation-link product-viewer-open" aria-haspopup="dialog" aria-controls="product-viewer-dialog">3D VIEW ↗</button>
+
                 </div>
 
 
@@ -142,6 +141,18 @@
         </aside>
 
     </main>
+
+    <dialog class="product-viewer-dialog" id="product-viewer-dialog" aria-labelledby="product-viewer-title">
+        <div class="product-viewer-dialog-header">
+            <h2 id="product-viewer-title">STOOL 01 / 3D VIEW</h2>
+            <button type="button" class="product-viewer-close" aria-label="3D 뷰 닫기">CLOSE ×</button>
+        </div>
+        <div class="product-viewer-body">
+            <div class="product-viewer-stage" data-furniture-model="./assets/models/stool-01.glb" role="group" aria-label="STOOL 01 3D 뷰">
+            </div>
+            <p class="product-viewer-status" role="status" hidden></p>
+        </div>
+    </dialog>
 
 
     <!-- ==================================================
@@ -166,9 +177,12 @@
     </footer>
 
 
-    <script src="./js/main.js?v=profile-navigation-04"></script>
+    <script src="./js/main.js?v=dialog-scroll-05"></script>
 
-    <script src="./js/furniture-drawing.js?v=step-surfaces-03"></script>
+    <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
+    </script>
+    <script src="./js/furniture-viewer.js?v=02"></script>
 
 </body>
 

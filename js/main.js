@@ -140,6 +140,7 @@ function initSmoothScroll() {
         }
     };
     window.addEventListener('wheel', event => {
+        if (document.querySelector('dialog[open]')) { stop(); return; }
         if (reducedMotion.matches || event.ctrlKey || event.metaKey || event.shiftKey ||
             !event.cancelable || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
             stop();
