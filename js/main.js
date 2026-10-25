@@ -56,12 +56,13 @@ function initProfileNavigation() {
     };
     const syncMode = () => {
         setOpen(false);
-        if (mobile.matches) button.setAttribute('aria-controls', navigation.id);
+        if (mobile.matches) { button.setAttribute('aria-controls', navigation.id); button.removeAttribute('aria-haspopup'); }
         else {
             navigation.hidden = false;
             button.removeAttribute('aria-expanded');
             button.removeAttribute('aria-controls');
-            button.setAttribute('aria-label', '프로파일 단면 채우기 전환');
+            button.setAttribute('aria-label', 'FRMFRM MONO 웹캠 열기');
+            button.setAttribute('aria-haspopup', 'dialog');
         }
     };
     button.addEventListener('click', event => {
@@ -70,7 +71,7 @@ function initProfileNavigation() {
         if (mobile.matches) {
             const open = button.getAttribute('aria-expanded') !== 'true';
             setOpen(open);
-        } else button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+        } else button.dispatchEvent(new Event('profile-camera-open'));
     });
     navigation.addEventListener('click', event => {
         if (mobile.matches && event.target.closest('a')) setOpen(false);
