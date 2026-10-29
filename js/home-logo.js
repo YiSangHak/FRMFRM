@@ -126,7 +126,7 @@
         }
         new ResizeObserver(sizeAnchors).observe(svg);
         sizeAnchors();
-        const idlePause = 8000;
+        const idlePause = 6000;
         let animations = [], generation = 0, replayTimer = 0, inView = false, leaving = false;
         function scheduleReplay() {
             clearTimeout(replayTimer);

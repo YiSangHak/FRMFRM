@@ -75,6 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('pointerleave', hideHint);
     window.addEventListener('scroll', hideHint, {passive:true});
     window.addEventListener('blur', hideHint);
+    // Unattended home screens invite visitors using the existing profile tooltip.
+    const showIdleHint = () => {
+        if (!document.body.classList.contains('page-home')) return;
+        const rect = button.getBoundingClientRect();
+        showHint({ clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
+    };
+    window.addEventListener('frmfrm:idle-home', showIdleHint);
+    const arrival = new URL(window.location.href);
+    if (arrival.searchParams.get('idle') === '1') {
+        arrival.searchParams.delete('idle');
+        history.replaceState(history.state, '', arrival.href);
+        requestAnimationFrame(showIdleHint);
+    }
     function resize() {
         if (!dialog.open) return;
         // Size the desktop window around the actual camera frame, including its controls.

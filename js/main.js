@@ -94,7 +94,7 @@ function initProfileNavigation() {
 
 // Return unattended exhibition pages to the live home screen.
 function initIdleHomeReturn() {
-    if (document.body.classList.contains('page-home')) return;
+    const isHome = document.body.classList.contains('page-home');
     const idleLimit = 60_000;
     let lastInput = Date.now();
     let timer = 0;
@@ -102,7 +102,15 @@ function initIdleHomeReturn() {
         clearTimeout(timer);
         const remaining = idleLimit - (Date.now() - lastInput);
         if (remaining <= 0) {
-            window.location.replace(new URL('./index.html', window.location.href).href);
+            if (isHome) {
+                window.dispatchEvent(new Event('frmfrm:idle-home'));
+                lastInput = Date.now();
+                timer = setTimeout(check, idleLimit);
+            } else {
+                const home = new URL('./index.html', window.location.href);
+                home.searchParams.set('idle', '1');
+                window.location.replace(home.href);
+            }
             return;
         }
         timer = setTimeout(check, remaining);
