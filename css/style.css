@@ -2621,3 +2621,47 @@ html body :focus-visible { outline: none !important; }
     .typeface-info { row-gap: 40px; }
     .typeface-info-heading { padding: 10px 0; border-bottom: var(--rule); }
 }
+
+
+/* Keep text-adjacent spacing in step with the shared body scale. */
+:root { --text-paragraph-gap: calc(var(--type-ui-size) * 2); }
+.typeface-info-text,
+.about-intro-text,
+.product-description,
+.logic-description,
+.about-frame-copy,
+.home-about-copy,
+.home-foundation-intro,
+.home-foundation-paragraph { gap: var(--text-paragraph-gap); }
+
+@media (min-width: 768px) {
+    /* Scale the header marks and link spacing with the existing 14–16px UI. */
+    .site-header .site-logo { width: calc(var(--type-ui-size) * 100 / 14); }
+    .site-header .site-nav { gap: calc(var(--type-ui-size) * 40 / 14); }
+    .site-header .header-profile {
+        --profile-mark-size: calc(var(--type-ui-size) * 24 / 14);
+        width: calc(var(--profile-mark-size) + 20px);
+        height: calc(var(--profile-mark-size) + 20px);
+    }
+    .site-header .header-profile svg {
+        width: var(--profile-mark-size);
+        height: var(--profile-mark-size);
+    }
+
+    /* Size graphic letters against their own panel, rather than an early cap. */
+    .lab-orbit, .lab-echo { container-type: inline-size; }
+    .lab-orbit-letter { font-size: clamp(20px, 3.5cqw, 56px); }
+    .lab-orbit-core { font-size: clamp(80px, 16cqw, 240px); }
+    .lab-echo-stage > span { font-size: clamp(48px, 17cqw, 220px); }
+
+    /* Preserve the 1920px diagram size, growing to 1200px at 2560px. */
+    .about-intro .about-brand-diagram {
+        max-width: clamp(800px, calc(62.5vw - 400px), 1200px);
+    }
+    .about-brand-diagram .svg-text-label[data-kind="primary"] {
+        font-size: clamp(14px, calc(.9375vw - 4px), 20px);
+    }
+    .about-brand-diagram .svg-text-label[data-kind="brand"] {
+        font-size: clamp(24px, 1.25vw, 32px);
+    }
+}
